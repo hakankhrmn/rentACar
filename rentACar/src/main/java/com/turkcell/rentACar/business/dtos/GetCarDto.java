@@ -7,8 +7,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ColorListDto {
-
-	private int colorId;
+public class GetCarDto {
+	
+	private int carId;
+	
+	private double dailyPrice;
+	
+	private int modelYear;
+	
+	private String description;
+	
+	private String brandName;
+	
 	private String colorName;
 }

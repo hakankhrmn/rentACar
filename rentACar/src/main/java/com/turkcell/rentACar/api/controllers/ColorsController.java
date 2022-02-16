@@ -2,16 +2,21 @@ package com.turkcell.rentACar.api.controllers;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turkcell.rentACar.business.abstracts.ColorService;
+import com.turkcell.rentACar.business.dtos.ColorListDto;
 import com.turkcell.rentACar.business.dtos.GetColorDto;
 import com.turkcell.rentACar.business.requests.CreateColorRequest;
+import com.turkcell.rentACar.business.requests.UpdateBrandRequest;
+import com.turkcell.rentACar.business.requests.UpdateColorRequest;
 import com.turkcell.rentACar.entities.concretes.Color;
 
 @RestController
@@ -26,7 +31,7 @@ public class ColorsController {
 	}
 	
 	@GetMapping("/getall")
-	public List<Color> getAll(){
+	public List<ColorListDto> getAll(){
 		return colorService.getAll();
 	}
 	
@@ -38,6 +43,16 @@ public class ColorsController {
 	@GetMapping("/getbyid/{id}")
 	public GetColorDto getById(@RequestParam int id) {
 		return this.colorService.getById(id);
+	}
+	
+	@DeleteMapping("/delete/{id}")
+	public void delete(@RequestParam int id) {
+		this.colorService.delete(id);
+	}
+	
+	@PutMapping("/update")
+	public void update(@RequestBody UpdateColorRequest updateColorRequest) throws Exception {
+		this.colorService.update(updateColorRequest);
 	}
 	
 }
