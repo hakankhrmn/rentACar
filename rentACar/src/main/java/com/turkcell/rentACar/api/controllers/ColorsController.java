@@ -2,6 +2,8 @@ package com.turkcell.rentACar.api.controllers;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turkcell.rentACar.business.abstracts.ColorService;
-import com.turkcell.rentACar.business.dtos.ColorListDto;
-import com.turkcell.rentACar.business.dtos.GetColorDto;
-import com.turkcell.rentACar.business.requests.CreateColorRequest;
-import com.turkcell.rentACar.business.requests.UpdateBrandRequest;
-import com.turkcell.rentACar.business.requests.UpdateColorRequest;
-import com.turkcell.rentACar.entities.concretes.Color;
+import com.turkcell.rentACar.business.dtos.colorDtos.ColorListDto;
+import com.turkcell.rentACar.business.dtos.colorDtos.GetColorDto;
+import com.turkcell.rentACar.business.requests.colorRequests.CreateColorRequest;
+import com.turkcell.rentACar.business.requests.colorRequests.UpdateColorRequest;
+import com.turkcell.rentACar.core.utilities.results.DataResult;
+import com.turkcell.rentACar.core.utilities.results.Result;
 
 @RestController
 @RequestMapping("/api/colors")
@@ -31,28 +33,28 @@ public class ColorsController {
 	}
 	
 	@GetMapping("/getall")
-	public List<ColorListDto> getAll(){
+	public DataResult<List<ColorListDto>> getAll(){
 		return colorService.getAll();
 	}
 	
 	@PostMapping("/add")
-	public void add(@RequestBody CreateColorRequest createColorRequest) throws Exception {
-		this.colorService.add(createColorRequest);
+	public Result add(@RequestBody @Valid CreateColorRequest createColorRequest) throws Exception {
+		return this.colorService.add(createColorRequest);
 	}
 
 	@GetMapping("/getbyid/{id}")
-	public GetColorDto getById(@RequestParam int id) {
+	public DataResult<GetColorDto> getById(@RequestParam int id) {
 		return this.colorService.getById(id);
 	}
 	
 	@DeleteMapping("/delete/{id}")
-	public void delete(@RequestParam int id) {
-		this.colorService.delete(id);
+	public Result delete(@RequestParam int id) {
+		return this.colorService.delete(id);
 	}
 	
 	@PutMapping("/update")
-	public void update(@RequestBody UpdateColorRequest updateColorRequest) throws Exception {
-		this.colorService.update(updateColorRequest);
+	public Result update(@RequestBody @Valid UpdateColorRequest updateColorRequest) throws Exception {
+		return this.colorService.update(updateColorRequest);
 	}
 	
 }

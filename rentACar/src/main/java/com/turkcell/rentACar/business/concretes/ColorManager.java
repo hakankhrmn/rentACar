@@ -7,15 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.turkcell.rentACar.business.abstracts.ColorService;
-import com.turkcell.rentACar.business.dtos.CarListDto;
-import com.turkcell.rentACar.business.dtos.ColorListDto;
-import com.turkcell.rentACar.business.dtos.GetColorDto;
-import com.turkcell.rentACar.business.requests.CreateColorRequest;
-import com.turkcell.rentACar.business.requests.UpdateColorRequest;
+import com.turkcell.rentACar.business.dtos.colorDtos.ColorListDto;
+import com.turkcell.rentACar.business.dtos.colorDtos.GetColorDto;
+import com.turkcell.rentACar.business.requests.colorRequests.CreateColorRequest;
+import com.turkcell.rentACar.business.requests.colorRequests.UpdateColorRequest;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
+import com.turkcell.rentACar.core.utilities.results.DataResult;
+import com.turkcell.rentACar.core.utilities.results.Result;
+import com.turkcell.rentACar.core.utilities.results.SuccessDataResult;
+import com.turkcell.rentACar.core.utilities.results.SuccessResult;
 import com.turkcell.rentACar.dataAccess.abstracts.ColorDao;
-import com.turkcell.rentACar.entities.concretes.Brand;
-import com.turkcell.rentACar.entities.concretes.Car;
 import com.turkcell.rentACar.entities.concretes.Color;
 
 @Service
@@ -32,26 +33,28 @@ public class ColorManager implements ColorService {
 	}
 
 	@Override
-	public List<ColorListDto> getAll() {
+	public DataResult<List<ColorListDto>> getAll() {
 		
 		List<Color> result = this.colorDao.findAll(); 
 		List<ColorListDto> response = result.stream()
 				.map(color -> this.modelMapperService.forDto().map(color, ColorListDto.class))
 				.collect(Collectors.toList());
-		return response;
+		return new SuccessDataResult<List<ColorListDto>>(response, "Colors listed successfully.");
 	}
 
 	@Override
-	public void add(CreateColorRequest createColorRequest) throws Exception {
+	public Result add(CreateColorRequest createColorRequest) throws Exception {
 		Color color = this.modelMapperService.forRequest().map(createColorRequest, Color.class);
 		checkIfColorExists(createColorRequest.getName());
 		this.colorDao.save(color);
+		return new SuccessResult("Color added successfully.");
 	}
 
 	@Override
-	public GetColorDto getById(int id) {
+	public DataResult<GetColorDto> getById(int id) {
 		Color color = colorDao.findById(id);
-		return this.modelMapperService.forDto().map(color, GetColorDto.class);
+		GetColorDto response = this.modelMapperService.forDto().map(color, GetColorDto.class);
+		return new SuccessDataResult<GetColorDto>(response, "Getting color by id");
 	}
 
 	private void checkIfColorExists(String name) throws Exception {
@@ -69,13 +72,13 @@ public class ColorManager implements ColorService {
 	}
 
 	@Override
-	public void delete(int id) {
+	public Result delete(int id) {
 		this.colorDao.deleteById(id);
-		
+		return new SuccessResult("Color deleted successfully.");
 	}
 
 	@Override
-	public void update(UpdateColorRequest updateColorRequest) throws Exception {
+	public Result update(UpdateColorRequest updateColorRequest) throws Exception {
 		
 		Color color = this.modelMapperService.forRequest().map(updateColorRequest, Color.class);
 		
@@ -83,6 +86,7 @@ public class ColorManager implements ColorService {
 		
 		this.colorDao.save(color);
 		
+		return new SuccessResult("Color updated successfully.");
 	}
 
 }

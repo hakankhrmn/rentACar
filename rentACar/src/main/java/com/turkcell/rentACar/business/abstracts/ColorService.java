@@ -2,18 +2,18 @@ package com.turkcell.rentACar.business.abstracts;
 
 import java.util.List;
 
-import com.turkcell.rentACar.business.dtos.ColorListDto;
-import com.turkcell.rentACar.business.dtos.GetColorDto;
-import com.turkcell.rentACar.business.requests.CreateColorRequest;
-import com.turkcell.rentACar.business.requests.UpdateBrandRequest;
-import com.turkcell.rentACar.business.requests.UpdateColorRequest;
-import com.turkcell.rentACar.entities.concretes.Color;
+import com.turkcell.rentACar.business.dtos.colorDtos.ColorListDto;
+import com.turkcell.rentACar.business.dtos.colorDtos.GetColorDto;
+import com.turkcell.rentACar.business.requests.colorRequests.CreateColorRequest;
+import com.turkcell.rentACar.business.requests.colorRequests.UpdateColorRequest;
+import com.turkcell.rentACar.core.utilities.results.DataResult;
+import com.turkcell.rentACar.core.utilities.results.Result;
 
 public interface ColorService {
 
-	List<ColorListDto> getAll();
-	void add(CreateColorRequest createColorRequest) throws Exception;
-	GetColorDto getById(int id);
-	void delete(int id);
-	void update(UpdateColorRequest updateColorRequest) throws Exception;
+	DataResult<List<ColorListDto>> getAll();
+	Result add(CreateColorRequest createColorRequest) throws Exception;
+	DataResult<GetColorDto> getById(int id);
+	Result delete(int id);
+	Result update(UpdateColorRequest updateColorRequest) throws Exception;
 }

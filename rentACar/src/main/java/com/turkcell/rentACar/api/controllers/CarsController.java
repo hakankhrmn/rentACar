@@ -1,7 +1,8 @@
 package com.turkcell.rentACar.api.controllers;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import javax.validation.Valid;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turkcell.rentACar.business.abstracts.CarService;
-import com.turkcell.rentACar.business.dtos.CarListDto;
-import com.turkcell.rentACar.business.dtos.GetCarDto;
-import com.turkcell.rentACar.business.requests.CreateCarRequest;
-import com.turkcell.rentACar.business.requests.UpdateCarRequest;
+import com.turkcell.rentACar.business.dtos.carDtos.CarListDto;
+import com.turkcell.rentACar.business.dtos.carDtos.GetCarDto;
+import com.turkcell.rentACar.business.requests.carRequests.CreateCarRequest;
+import com.turkcell.rentACar.business.requests.carRequests.UpdateCarRequest;
+import com.turkcell.rentACar.core.utilities.results.DataResult;
+import com.turkcell.rentACar.core.utilities.results.Result;
 
 @RestController
 @RequestMapping("/api/cars")
@@ -31,34 +34,49 @@ public class CarsController {
 	}
 
 	@GetMapping("/getAll")
-	public List<CarListDto> getAll() {
+	public DataResult<List<CarListDto>> getAll() {
 		
 		return carService.getAll();
 	}
 
 	@PostMapping("/add")
-	public void add(@RequestBody CreateCarRequest createCarRequest) {
+	public Result add(@RequestBody @Valid CreateCarRequest createCarRequest) {
 		
-		carService.add(createCarRequest);
+		return carService.add(createCarRequest);
 
 	}
 
 	@GetMapping("/get/{id}")
-	public GetCarDto getById(@RequestParam int id) {
+	public DataResult<GetCarDto> getById(@RequestParam int id) {
 		return carService.getById(id);
 	}
 
 	@DeleteMapping("/delete/{id}")
-	public void delete(@RequestParam int id) {
+	public Result delete(@RequestParam int id) {
 		
-		carService.delete(id);
+		return carService.delete(id);
 
 	}
 
 	@PutMapping("/update")
-	public void update(@RequestBody UpdateCarRequest updateCarRequest) {
-		this.carService.update(updateCarRequest);
+	public Result update(@RequestBody @Valid UpdateCarRequest updateCarRequest) {
+		return this.carService.update(updateCarRequest);
 
+	}
+	
+	@GetMapping("/get/{dailyPrice}")
+	public DataResult<List<CarListDto>> getByDailyPrice(double dailyPrice) {
+		return this.carService.getByDailyPrice(dailyPrice);
+	}
+	
+	@GetMapping("/getallpages")
+	public DataResult<List<CarListDto>> getAllPaged(int pageNo, int pageSize) {
+		return carService.getAllPaged(pageNo, pageSize);
+	}
+
+	@GetMapping("/getallsorted")
+	public DataResult<List<CarListDto>> getAllSorted(String direction) {
+		return carService.getAllSorted(direction);
 	}
 
 }
