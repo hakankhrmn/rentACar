@@ -9,7 +9,6 @@ import com.turkcell.rentACar.business.requests.carMaintenanceRequests.UpdateCarM
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
 
-
 public interface CarMaintenanceService {
 
 	DataResult<List<CarMaintenanceListDto>> getAll();

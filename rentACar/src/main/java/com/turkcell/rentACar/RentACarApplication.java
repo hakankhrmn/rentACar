@@ -23,9 +23,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.results.ErrorDataResult;
 import com.turkcell.rentACar.core.utilities.results.ErrorResult;
-import com.turkcell.rentACar.exceptions.BusinessException;
 
 @SpringBootApplication
 @RestControllerAdvice

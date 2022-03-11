@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.turkcell.rentACar.business.abstracts.CarMaintenanceService;
@@ -14,6 +15,7 @@ import com.turkcell.rentACar.business.dtos.carMaintenanceDtos.GetCarMaintenanceD
 import com.turkcell.rentACar.business.dtos.carRentDtos.CarRentListDto;
 import com.turkcell.rentACar.business.requests.carMaintenanceRequests.CreateCarMaintenanceRequest;
 import com.turkcell.rentACar.business.requests.carMaintenanceRequests.UpdateCarMaintenanceRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -21,7 +23,6 @@ import com.turkcell.rentACar.core.utilities.results.SuccessDataResult;
 import com.turkcell.rentACar.core.utilities.results.SuccessResult;
 import com.turkcell.rentACar.dataAccess.abstracts.CarMaintenanceDao;
 import com.turkcell.rentACar.entities.concretes.CarMaintenance;
-import com.turkcell.rentACar.exceptions.BusinessException;
 
 @Service
 public class CarMaintenanceManager implements CarMaintenanceService {
@@ -31,7 +32,7 @@ public class CarMaintenanceManager implements CarMaintenanceService {
 	private CarRentService carRentService;
 	
 	@Autowired
-	public CarMaintenanceManager(CarMaintenanceDao carMaintenanceDao, ModelMapperService modelMapperService, CarRentService carRentService) {
+	public CarMaintenanceManager(CarMaintenanceDao carMaintenanceDao, ModelMapperService modelMapperService, @Lazy CarRentService carRentService) {
 		this.carMaintenanceDao = carMaintenanceDao;
 		this.modelMapperService = modelMapperService;
 		this.carRentService = carRentService;
@@ -82,7 +83,7 @@ public class CarMaintenanceManager implements CarMaintenanceService {
 		return new SuccessDataResult<List<CarMaintenanceListDto>>(response, "Car maintenances listed successfully.");
 	}
 	
-	private void checkIfManitenanceDatesCorrect(CreateCarMaintenanceRequest createCarManitenanceRequest) throws BusinessException {
+	private void checkIfManitenanceDatesCorrect(CreateCarMaintenanceRequest createCarManitenanceRequest) {
 		if (createCarManitenanceRequest.getReturnDate().isBefore(createCarManitenanceRequest.getMaintenanceDate())) {
 			throw new BusinessException("Return date can not be before maintenance date!");
 		}

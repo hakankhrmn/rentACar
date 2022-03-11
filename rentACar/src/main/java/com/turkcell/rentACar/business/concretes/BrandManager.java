@@ -11,6 +11,7 @@ import com.turkcell.rentACar.business.dtos.brandDtos.BrandListDto;
 import com.turkcell.rentACar.business.dtos.brandDtos.GetBrandDto;
 import com.turkcell.rentACar.business.requests.brandRequests.CreateBrandRequest;
 import com.turkcell.rentACar.business.requests.brandRequests.UpdateBrandRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -18,7 +19,6 @@ import com.turkcell.rentACar.core.utilities.results.SuccessDataResult;
 import com.turkcell.rentACar.core.utilities.results.SuccessResult;
 import com.turkcell.rentACar.dataAccess.abstracts.BrandDao;
 import com.turkcell.rentACar.entities.concretes.Brand;
-import com.turkcell.rentACar.exceptions.BusinessException;
 
 @Service
 public class BrandManager implements BrandService{

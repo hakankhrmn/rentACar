@@ -1,7 +1,9 @@
 package com.turkcell.rentACar.entities.concretes;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -10,7 +12,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.turkcell.rentACar.entities.abstracts.CityEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,6 +35,15 @@ public class CarRent {
 
 	@Column(name = "description")
 	private String description;
+	
+	@Column(name = "total_price")
+	private double totalPrice;
+	
+	@Column(name = "rent_city")
+	private CityEnum rentCity;
+
+	@Column(name = "return_city")
+	private CityEnum returnCity;
 
 	@Column(name = "rent_date")
 	private LocalDate rentDate;
@@ -40,4 +54,7 @@ public class CarRent {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "car_id")
 	private Car car;
+	
+	@OneToMany(mappedBy = "carRent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<OrderedAdditionalService> orderedAdditionalServices;
 }

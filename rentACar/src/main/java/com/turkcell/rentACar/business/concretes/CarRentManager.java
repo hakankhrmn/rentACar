@@ -1,35 +1,62 @@
 package com.turkcell.rentACar.business.concretes;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import com.turkcell.rentACar.business.abstracts.AdditionalServiceService;
 import com.turkcell.rentACar.business.abstracts.CarMaintenanceService;
 import com.turkcell.rentACar.business.abstracts.CarRentService;
+import com.turkcell.rentACar.business.abstracts.CarService;
+import com.turkcell.rentACar.business.abstracts.OrderedAdditionalServiceService;
+import com.turkcell.rentACar.business.dtos.additionalServiceDtos.GetAdditionalServiceDto;
+import com.turkcell.rentACar.business.dtos.carDtos.GetCarDto;
 import com.turkcell.rentACar.business.dtos.carMaintenanceDtos.CarMaintenanceListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.CarRentListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.GetCarRentDto;
 import com.turkcell.rentACar.business.requests.carRentRequests.CreateCarRentRequest;
+import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.CreateOrderedAdditionalServiceRequest;
+import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.OrderedAdditionalServiceRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
 import com.turkcell.rentACar.core.utilities.results.SuccessDataResult;
 import com.turkcell.rentACar.core.utilities.results.SuccessResult;
 import com.turkcell.rentACar.dataAccess.abstracts.CarRentDao;
+import com.turkcell.rentACar.entities.abstracts.CityEnum;
 import com.turkcell.rentACar.entities.concretes.CarRent;
-import com.turkcell.rentACar.exceptions.BusinessException;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class CarRentManager implements CarRentService {
 	
-	private final CarMaintenanceService carMaintenanceService;
-	private final CarRentDao carRentDao;
+	private OrderedAdditionalServiceService orderedAdditionalServiceService;
+	private CarMaintenanceService carMaintenanceService;
+	private CarRentDao carRentDao;
 	private ModelMapperService modelMapperService;
+	private AdditionalServiceService additionalServiceService;
+	private CarService carService;
+
+	@Autowired
+	public CarRentManager(@Lazy CarMaintenanceService carMaintenanceService,
+			CarRentDao carRentDao,
+			ModelMapperService modelMapperService,
+			OrderedAdditionalServiceService orderedAdditionalServiceService,
+			AdditionalServiceService additionalServiceService,
+			CarService carService) {
+		super();
+		this.carMaintenanceService = carMaintenanceService;
+		this.carRentDao = carRentDao;
+		this.modelMapperService = modelMapperService;
+		this.orderedAdditionalServiceService = orderedAdditionalServiceService;
+		this.additionalServiceService = additionalServiceService;
+		this.carService = carService;
+	}
 
 	@Override
 	public DataResult<List<CarRentListDto>> getAll() {
@@ -43,22 +70,41 @@ public class CarRentManager implements CarRentService {
 	public Result add(CreateCarRentRequest createCarRentRequest) {
 		checkIfRentalDatesCorrect(createCarRentRequest);
 		checkIfRentalDatesSuitable(createCarRentRequest);
-
-		CarRent carMaintenance = this.modelMapperService.forRequest().map(createCarRentRequest, CarRent.class);
-		carRentDao.save(carMaintenance);
+		
+		CarRent carRent = this.modelMapperService.forRequest().map(createCarRentRequest, CarRent.class);
+		carRent.setRentCity(CityEnum.valueOf(createCarRentRequest.getRentCity()));
+		carRent.setReturnCity(CityEnum.valueOf(createCarRentRequest.getReturnCity()));
+		
+		List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests = createCarRentRequest.getOrderedAdditionalServiceRequests();
+		
+		carRent.setTotalPrice(0);
+		updateTotalPriceIfAdditionalServiceExists(carRent, orderedAdditionalServiceRequests);
+		updateTotalPriceIfDifferentCity(carRent);
+		updateTotalPriceForCar(carRent, createCarRentRequest);
+		
+		CarRent savedCarRent = carRentDao.save(carRent);
+		
+		
+		List<CreateOrderedAdditionalServiceRequest> createOrderedAdditionalServiceRequests = orderedAdditionalServiceRequests.stream()
+				.map(orderedAdditionalServiceRequest -> this.modelMapperService.forDto().map(orderedAdditionalServiceRequest, CreateOrderedAdditionalServiceRequest.class)).collect(Collectors.toList());
+		
+		createOrderedAdditionalServiceRequests.forEach(createOrderedAdditionalServiceRequest -> createOrderedAdditionalServiceRequest.setCarRentId(savedCarRent.getCarRentId()));
+		orderedAdditionalServiceService.addAll(createOrderedAdditionalServiceRequests);
+		
 		return new SuccessResult("Car rent added successfully.");
 	}
 
 	@Override
 	public DataResult<GetCarRentDto> getById(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		CarRent carRent = this.carRentDao.getById(id);
+		GetCarRentDto getCarRentDto = this.modelMapperService.forDto().map(carRent, GetCarRentDto.class);
+		return new SuccessDataResult<GetCarRentDto>(getCarRentDto, "Getting car rent by car rent id.");
 	}
 
 	@Override
 	public Result delete(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		this.carRentDao.deleteById(id);
+		return new SuccessResult("Car rent deleted successfully.");
 	}
 
 	@Override
@@ -69,16 +115,19 @@ public class CarRentManager implements CarRentService {
 		return new SuccessDataResult<List<CarRentListDto>>(response, "Car rents listed successfully.");
 	}
 
-	private void checkIfRentalDatesCorrect(CreateCarRentRequest createCarRentRequest) throws BusinessException {
+	private void checkIfRentalDatesCorrect(CreateCarRentRequest createCarRentRequest) {
 		if (createCarRentRequest.getReturnDate().isBefore(createCarRentRequest.getRentDate())) {
 			throw new BusinessException("Return date can not be before rent date!");
 		}
-
 	}
 	
 	private void checkIfRentalDatesSuitable(CreateCarRentRequest createCarRentRequest) {
 		DataResult<List<CarMaintenanceListDto>> dataResult = carMaintenanceService.getByCarId(createCarRentRequest.getCarId());
 		List<CarMaintenanceListDto> carMaintenanceListDtos = dataResult.getData();
+		
+		if (carMaintenanceListDtos == null) {
+			return;
+		}
 		
 		LocalDate rentDate = createCarRentRequest.getRentDate();
 		LocalDate returnDate = createCarRentRequest.getReturnDate();
@@ -100,6 +149,31 @@ public class CarRentManager implements CarRentService {
 			}
 		}
 		
+	}
+	
+	private void updateTotalPriceIfDifferentCity(CarRent carRent) {
+		if(!carRent.getRentCity().equals(carRent.getReturnCity())) {
+			carRent.setTotalPrice(carRent.getTotalPrice() + 750);
+		}
+	}
+	
+	private void updateTotalPriceIfAdditionalServiceExists(CarRent carRent,
+			List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests) {
+		if(orderedAdditionalServiceRequests != null) {
+			for(OrderedAdditionalServiceRequest orderedAdditionalServiceRequest : orderedAdditionalServiceRequests) {
+				GetAdditionalServiceDto getAdditionalServiceDto = additionalServiceService.getById(orderedAdditionalServiceRequest.getAdditionalServiceId()).getData();
+				long days = ChronoUnit.DAYS.between(carRent.getRentDate(), carRent.getReturnDate());
+				carRent.setTotalPrice(carRent.getTotalPrice() + getAdditionalServiceDto.getAdditionalServiceDailyPrice()*days);
+			}
+		}
+	}
+	
+	private void updateTotalPriceForCar(CarRent carRent, CreateCarRentRequest createCarRentRequest) {
+		
+		GetCarDto getCarDto = carService.getById(createCarRentRequest.getCarId()).getData();
+		long days = ChronoUnit.DAYS.between(carRent.getRentDate(), carRent.getReturnDate());
+		carRent.setTotalPrice(carRent.getTotalPrice() + getCarDto.getDailyPrice()*days);
+			
 	}
 
 }

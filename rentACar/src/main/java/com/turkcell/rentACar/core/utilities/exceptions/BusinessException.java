@@ -1,4 +1,4 @@
-package com.turkcell.rentACar.exceptions;
+package com.turkcell.rentACar.core.utilities.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
