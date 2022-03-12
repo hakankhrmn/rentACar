@@ -16,8 +16,6 @@ public class GetCarRentDto {
 
 	private String description;
 	
-	private double totalPrice;
-	
 	private String rentCity;
 
 	private String returnCity;

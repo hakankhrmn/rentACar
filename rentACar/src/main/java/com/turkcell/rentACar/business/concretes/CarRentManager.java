@@ -68,19 +68,15 @@ public class CarRentManager implements CarRentService {
 
 	@Override
 	public Result add(CreateCarRentRequest createCarRentRequest) {
+		
 		checkIfRentalDatesCorrect(createCarRentRequest);
 		checkIfRentalDatesSuitable(createCarRentRequest);
 		
 		CarRent carRent = this.modelMapperService.forRequest().map(createCarRentRequest, CarRent.class);
-		carRent.setRentCity(CityEnum.valueOf(createCarRentRequest.getRentCity()));
-		carRent.setReturnCity(CityEnum.valueOf(createCarRentRequest.getReturnCity()));
+		
 		
 		List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests = createCarRentRequest.getOrderedAdditionalServiceRequests();
 		
-		carRent.setTotalPrice(0);
-		updateTotalPriceIfAdditionalServiceExists(carRent, orderedAdditionalServiceRequests);
-		updateTotalPriceIfDifferentCity(carRent);
-		updateTotalPriceForCar(carRent, createCarRentRequest);
 		
 		CarRent savedCarRent = carRentDao.save(carRent);
 		
@@ -151,28 +147,27 @@ public class CarRentManager implements CarRentService {
 		
 	}
 	
-	private void updateTotalPriceIfDifferentCity(CarRent carRent) {
+	private void updateTotalPriceIfDifferentCity(double totalPrice, CarRent carRent) {
 		if(!carRent.getRentCity().equals(carRent.getReturnCity())) {
-			carRent.setTotalPrice(carRent.getTotalPrice() + 750);
+			totalPrice = totalPrice + 750;
 		}
 	}
 	
-	private void updateTotalPriceIfAdditionalServiceExists(CarRent carRent,
+	private void updateTotalPriceIfAdditionalServiceExists(double totalPrice, long days,
 			List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests) {
 		if(orderedAdditionalServiceRequests != null) {
 			for(OrderedAdditionalServiceRequest orderedAdditionalServiceRequest : orderedAdditionalServiceRequests) {
 				GetAdditionalServiceDto getAdditionalServiceDto = additionalServiceService.getById(orderedAdditionalServiceRequest.getAdditionalServiceId()).getData();
-				long days = ChronoUnit.DAYS.between(carRent.getRentDate(), carRent.getReturnDate());
-				carRent.setTotalPrice(carRent.getTotalPrice() + getAdditionalServiceDto.getAdditionalServiceDailyPrice()*days);
+				totalPrice = totalPrice + getAdditionalServiceDto.getAdditionalServiceDailyPrice()*days;
 			}
 		}
 	}
 	
-	private void updateTotalPriceForCar(CarRent carRent, CreateCarRentRequest createCarRentRequest) {
+	private void updateTotalPriceForCar(double totalPrice, long days, CreateCarRentRequest createCarRentRequest) {
 		
 		GetCarDto getCarDto = carService.getById(createCarRentRequest.getCarId()).getData();
-		long days = ChronoUnit.DAYS.between(carRent.getRentDate(), carRent.getReturnDate());
-		carRent.setTotalPrice(carRent.getTotalPrice() + getCarDto.getDailyPrice()*days);
+		
+		totalPrice = totalPrice + getCarDto.getDailyPrice()*days;
 			
 	}
 

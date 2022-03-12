@@ -36,14 +36,11 @@ public class CarRent {
 	@Column(name = "description")
 	private String description;
 	
-	@Column(name = "total_price")
-	private double totalPrice;
-	
 	@Column(name = "rent_city")
-	private CityEnum rentCity;
+	private String rentCity;
 
 	@Column(name = "return_city")
-	private CityEnum returnCity;
+	private String returnCity;
 
 	@Column(name = "rent_date")
 	private LocalDate rentDate;
@@ -57,4 +54,8 @@ public class CarRent {
 	
 	@OneToMany(mappedBy = "carRent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<OrderedAdditionalService> orderedAdditionalServices;
+	
+	@ManyToOne
+	@JoinColumn(name = "invoice_id")
+	private Invoice invoice;
 }

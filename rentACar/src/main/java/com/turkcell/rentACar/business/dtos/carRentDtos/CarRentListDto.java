@@ -17,8 +17,6 @@ public class CarRentListDto {
 	private int carRentId;
 
 	private String description;
-
-	private double totalPrice;
 	
 	private String rentCity;
 
