@@ -7,5 +7,5 @@ import com.turkcell.rentACar.entities.concretes.IndividualCustomer;
 
 @Repository
 public interface IndividualCustomerDao extends JpaRepository<IndividualCustomer, Integer>{
-
+    boolean existsIndividualCustomerId(int id);
 }

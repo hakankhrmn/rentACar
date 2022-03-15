@@ -1,25 +1,12 @@
 package com.turkcell.rentACar.entities.concretes;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import com.turkcell.rentACar.entities.abstracts.CityEnum;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
@@ -35,12 +22,14 @@ public class CarRent {
 
 	@Column(name = "description")
 	private String description;
-	
-	@Column(name = "rent_city")
-	private String rentCity;
 
-	@Column(name = "return_city")
-	private String returnCity;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "rent_city_id")
+	private City rentCity;
+
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "return_city_id")
+	private City returnCity;
 
 	@Column(name = "rent_date")
 	private LocalDate rentDate;
@@ -55,7 +44,7 @@ public class CarRent {
 	@OneToMany(mappedBy = "carRent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<OrderedAdditionalService> orderedAdditionalServices;
 	
-	@ManyToOne
+	@OneToOne
 	@JoinColumn(name = "invoice_id")
 	private Invoice invoice;
 }

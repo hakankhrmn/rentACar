@@ -1,11 +1,10 @@
 package com.turkcell.rentACar.business.dtos.carRentDtos;
 
-import java.time.LocalDate;
-
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -16,9 +15,9 @@ public class GetCarRentDto {
 
 	private String description;
 	
-	private String rentCity;
+	private String rentCityCityName;
 
-	private String returnCity;
+	private String returnCityCityName;
 
 	private LocalDate rentDate;
 

@@ -1,30 +1,27 @@
 package com.turkcell.rentACar.business.requests.carRentRequests;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.OrderedAdditionalServiceRequest;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateCarRentRequest {
-	
 
 	private String description;
 	
 	@NotNull
-	private String rentCity;
+	private int rentCityId;
 
 	@NotNull
-	private String returnCity;
+	private int returnCityId;
 
 	@NotNull
 	private LocalDate rentDate;

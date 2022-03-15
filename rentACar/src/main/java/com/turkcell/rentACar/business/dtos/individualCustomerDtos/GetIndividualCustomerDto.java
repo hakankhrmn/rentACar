@@ -1,4 +1,4 @@
-package com.turkcell.rentACar.business.requests.individualCustomerRequests;
+package com.turkcell.rentACar.business.dtos.individualCustomerDtos;
 
 
 import lombok.AllArgsConstructor;
@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateIndividualCustomerRequest {
-	
+public class GetIndividualCustomerDto {
+
 	private int individualCustomerId;
 
 	private String firstName;
@@ -17,8 +17,4 @@ public class UpdateIndividualCustomerRequest {
 	private String lastName;
 	
 	private String nationalIdentity;
-
-	private String email;
-
-	private String password;
 }

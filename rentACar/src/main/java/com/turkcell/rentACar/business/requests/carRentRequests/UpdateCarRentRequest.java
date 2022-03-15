@@ -1,16 +1,14 @@
 package com.turkcell.rentACar.business.requests.carRentRequests;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
 import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.OrderedAdditionalServiceRequest;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -22,16 +20,15 @@ public class UpdateCarRentRequest {
 	private int carRentId;
 
 	private String description;
-	
-	private String rentCity;
 
-	private String returnCity;
+	private int rentCityId;
+
+	private int returnCityId;
 
 	private LocalDate rentDate;
 
 	private LocalDate returnDate;
 
-	@Min(1)
 	private int carId;
 	
 	private List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests;

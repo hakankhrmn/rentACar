@@ -1,23 +1,11 @@
 package com.turkcell.rentACar.entities.concretes;
 
-import java.time.LocalDate;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.*;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -38,13 +26,13 @@ public class Invoice {
 	private LocalDate invoiceDate;
 
 	@Column(name="total_payment")
-	private LocalDate totalPayment;
+	private double totalPayment;
 	
 	@ManyToOne
 	@JoinColumn(name = "customer_id")
 	private Customer customer;
 	
-	@OneToMany(mappedBy = "invoice", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
-	private List<CarRent> carRents;	
+	@OneToOne(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private CarRent carRent;
 	
 }

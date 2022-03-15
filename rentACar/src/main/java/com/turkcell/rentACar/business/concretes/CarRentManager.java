@@ -1,21 +1,7 @@
 package com.turkcell.rentACar.business.concretes;
 
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-
-import com.turkcell.rentACar.business.abstracts.AdditionalServiceService;
-import com.turkcell.rentACar.business.abstracts.CarMaintenanceService;
-import com.turkcell.rentACar.business.abstracts.CarRentService;
-import com.turkcell.rentACar.business.abstracts.CarService;
-import com.turkcell.rentACar.business.abstracts.OrderedAdditionalServiceService;
-import com.turkcell.rentACar.business.dtos.additionalServiceDtos.GetAdditionalServiceDto;
-import com.turkcell.rentACar.business.dtos.carDtos.GetCarDto;
+import com.turkcell.rentACar.api.controllers.models.CreateRentalRequest;
+import com.turkcell.rentACar.business.abstracts.*;
 import com.turkcell.rentACar.business.dtos.carMaintenanceDtos.CarMaintenanceListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.CarRentListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.GetCarRentDto;
@@ -29,8 +15,14 @@ import com.turkcell.rentACar.core.utilities.results.Result;
 import com.turkcell.rentACar.core.utilities.results.SuccessDataResult;
 import com.turkcell.rentACar.core.utilities.results.SuccessResult;
 import com.turkcell.rentACar.dataAccess.abstracts.CarRentDao;
-import com.turkcell.rentACar.entities.abstracts.CityEnum;
 import com.turkcell.rentACar.entities.concretes.CarRent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CarRentManager implements CarRentService {
@@ -41,14 +33,18 @@ public class CarRentManager implements CarRentService {
 	private ModelMapperService modelMapperService;
 	private AdditionalServiceService additionalServiceService;
 	private CarService carService;
+	private CityService cityService;
+	private IndividualCustomerService individualCustomerService;
+	private CorporateCustomerService corporateCustomerService;
 
 	@Autowired
 	public CarRentManager(@Lazy CarMaintenanceService carMaintenanceService,
-			CarRentDao carRentDao,
-			ModelMapperService modelMapperService,
-			OrderedAdditionalServiceService orderedAdditionalServiceService,
-			AdditionalServiceService additionalServiceService,
-			CarService carService) {
+						  CarRentDao carRentDao,
+						  ModelMapperService modelMapperService,
+						  OrderedAdditionalServiceService orderedAdditionalServiceService,
+						  AdditionalServiceService additionalServiceService,
+						  CarService carService,
+						  CityService cityService) {
 		super();
 		this.carMaintenanceService = carMaintenanceService;
 		this.carRentDao = carRentDao;
@@ -56,6 +52,7 @@ public class CarRentManager implements CarRentService {
 		this.orderedAdditionalServiceService = orderedAdditionalServiceService;
 		this.additionalServiceService = additionalServiceService;
 		this.carService = carService;
+		this.cityService = cityService;
 	}
 
 	@Override
@@ -67,25 +64,33 @@ public class CarRentManager implements CarRentService {
 	}
 
 	@Override
-	public Result add(CreateCarRentRequest createCarRentRequest) {
-		
+	public Result add(CreateRentalRequest createRentalRequest) {
+
+		CreateCarRentRequest createCarRentRequest = createRentalRequest.getCreateCarRentRequest();
 		checkIfRentalDatesCorrect(createCarRentRequest);
 		checkIfRentalDatesSuitable(createCarRentRequest);
-		
-		CarRent carRent = this.modelMapperService.forRequest().map(createCarRentRequest, CarRent.class);
-		
-		
+
 		List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests = createCarRentRequest.getOrderedAdditionalServiceRequests();
-		
-		
+
+		CarRent carRent = this.modelMapperService.forRequest().map(createCarRentRequest, CarRent.class);
+		carRent.setCarRentId(0);
+
 		CarRent savedCarRent = carRentDao.save(carRent);
-		
 		
 		List<CreateOrderedAdditionalServiceRequest> createOrderedAdditionalServiceRequests = orderedAdditionalServiceRequests.stream()
 				.map(orderedAdditionalServiceRequest -> this.modelMapperService.forDto().map(orderedAdditionalServiceRequest, CreateOrderedAdditionalServiceRequest.class)).collect(Collectors.toList());
-		
+
 		createOrderedAdditionalServiceRequests.forEach(createOrderedAdditionalServiceRequest -> createOrderedAdditionalServiceRequest.setCarRentId(savedCarRent.getCarRentId()));
 		orderedAdditionalServiceService.addAll(createOrderedAdditionalServiceRequests);
+
+		//calculate total payment
+		double totalPayment = chekCustomerForPayment(createRentalRequest.getCustomerId());
+
+		//total payment ayrı methoda
+
+		//createInvoiceRequest
+
+		//InvoiceService.add(createInvoiceRequest)
 		
 		return new SuccessResult("Car rent added successfully.");
 	}
@@ -146,29 +151,15 @@ public class CarRentManager implements CarRentService {
 		}
 		
 	}
-	
-	private void updateTotalPriceIfDifferentCity(double totalPrice, CarRent carRent) {
-		if(!carRent.getRentCity().equals(carRent.getReturnCity())) {
-			totalPrice = totalPrice + 750;
-		}
-	}
-	
-	private void updateTotalPriceIfAdditionalServiceExists(double totalPrice, long days,
-			List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests) {
-		if(orderedAdditionalServiceRequests != null) {
-			for(OrderedAdditionalServiceRequest orderedAdditionalServiceRequest : orderedAdditionalServiceRequests) {
-				GetAdditionalServiceDto getAdditionalServiceDto = additionalServiceService.getById(orderedAdditionalServiceRequest.getAdditionalServiceId()).getData();
-				totalPrice = totalPrice + getAdditionalServiceDto.getAdditionalServiceDailyPrice()*days;
-			}
-		}
-	}
-	
-	private void updateTotalPriceForCar(double totalPrice, long days, CreateCarRentRequest createCarRentRequest) {
-		
-		GetCarDto getCarDto = carService.getById(createCarRentRequest.getCarId()).getData();
-		
-		totalPrice = totalPrice + getCarDto.getDailyPrice()*days;
-			
-	}
 
+	private double chekCustomerForPayment(int customerId) {
+		if (individualCustomerService.existsByIndividualCustomerId(customerId)) {
+			return 20;
+		}
+
+		if (corporateCustomerService.existsByCorporateCustomerId(customerId)) {
+			return 10;
+		}
+		return 0;
+	}
 }
