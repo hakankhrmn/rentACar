@@ -91,13 +91,8 @@ public class CarRentManager implements CarRentService {
 		createOrderedAdditionalServiceRequests.forEach(createOrderedAdditionalServiceRequest -> createOrderedAdditionalServiceRequest.setCarRentId(savedCarRent.getCarRentId()));
 		orderedAdditionalServiceService.addAll(createOrderedAdditionalServiceRequests);
 
-		//calculate total payment
-		double totalPayment = chekCustomerForPayment(createRentalRequest.getCustomerId());
-
-		//total payment ayrı methoda
-
 		CreateInvoiceRequest createInvoiceRequest = new CreateInvoiceRequest(createRentalRequest.getCustomerId(),
-				savedCarRent.getCarRentId(),totalPayment);
+				savedCarRent.getCarRentId(),0);
 
 		invoiceService.add(createInvoiceRequest);
 		
@@ -166,14 +161,5 @@ public class CarRentManager implements CarRentService {
 		
 	}
 
-	private double chekCustomerForPayment(int customerId) {
-		if (individualCustomerService.existsByIndividualCustomerId(customerId)) {
-			return 20;
-		}
 
-		if (corporateCustomerService.existsByCorporateCustomerId(customerId)) {
-			return 10;
-		}
-		return 0;
-	}
 }

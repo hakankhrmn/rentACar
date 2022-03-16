@@ -1,11 +1,5 @@
 package com.turkcell.rentACar.business.concretes;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.turkcell.rentACar.business.abstracts.OrderedAdditionalServiceService;
 import com.turkcell.rentACar.business.dtos.orderedAdditionalServiceDtos.GetOrderedAdditionalServiceDto;
 import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.CreateOrderedAdditionalServiceRequest;
@@ -13,6 +7,11 @@ import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.dataAccess.abstracts.OrderedAdditionalServiceDao;
 import com.turkcell.rentACar.entities.concretes.OrderedAdditionalService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderedAdditionalServiceManager implements OrderedAdditionalServiceService {
@@ -59,6 +58,11 @@ public class OrderedAdditionalServiceManager implements OrderedAdditionalService
 		List<GetOrderedAdditionalServiceDto> getOrderedAdditionalServiceDtos = orderedAdditionalServices.stream()
 				.map(orderedAdditionalService -> this.modelMapperService.forDto().map(orderedAdditionalServices, GetOrderedAdditionalServiceDto.class)).collect(Collectors.toList());
 		return getOrderedAdditionalServiceDtos;
+	}
+
+	@Override
+	public List<OrderedAdditionalService> getByCarRent_CarRentId(int carRentId) {
+		return orderedAdditionalServiceDao.getAllByCarRent_CarRentId(carRentId);
 	}
 
 }
