@@ -32,7 +32,8 @@ public class Invoice {
 	@JoinColumn(name = "customer_id")
 	private Customer customer;
 	
-	@OneToOne(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToOne
+	@JoinColumn(name = "car_rent_id")
 	private CarRent carRent;
 	
 }

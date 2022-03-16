@@ -37,14 +37,13 @@ public class CarRent {
 	@Column(name = "return_date")
 	private LocalDate returnDate;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "car_id")
 	private Car car;
 	
 	@OneToMany(mappedBy = "carRent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<OrderedAdditionalService> orderedAdditionalServices;
 	
-	@OneToOne
-	@JoinColumn(name = "invoice_id")
+	@OneToOne(mappedBy = "carRent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Invoice invoice;
 }

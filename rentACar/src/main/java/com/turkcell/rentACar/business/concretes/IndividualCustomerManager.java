@@ -61,7 +61,12 @@ public class IndividualCustomerManager implements IndividualCustomerService {
 
 	@Override
 	public boolean existsByIndividualCustomerId(int id) {
-		return false;
+		return individualCustomerDao.existsByIndividualCustomerId(id);
+	}
+
+	@Override
+	public IndividualCustomer getIndividualCustomerById(int id) {
+		return individualCustomerDao.getById(id);
 	}
 
 }

@@ -5,6 +5,7 @@ import com.turkcell.rentACar.business.dtos.individualCustomerDtos.IndividualCust
 import com.turkcell.rentACar.business.requests.individualCustomerRequests.CreateIndividualCustomerRequest;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
+import com.turkcell.rentACar.entities.concretes.IndividualCustomer;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface IndividualCustomerService {
 	Result delete(int id);
 
 	boolean existsByIndividualCustomerId(int id);
+	IndividualCustomer getIndividualCustomerById(int id);
 }

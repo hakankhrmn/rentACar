@@ -5,6 +5,7 @@ import com.turkcell.rentACar.business.dtos.corporateCustomerDtos.GetCorporateCus
 import com.turkcell.rentACar.business.requests.corporateCustomerRequests.CreateCorporateCustomerRequest;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
+import com.turkcell.rentACar.entities.concretes.CorporateCustomer;
 
 import java.util.List;
 
@@ -16,4 +17,5 @@ public interface CorporateCustomerService {
 	Result delete(int id);
 
 	boolean existsByCorporateCustomerId(int id);
+	CorporateCustomer getCorporateCustomerById(int id);
 }

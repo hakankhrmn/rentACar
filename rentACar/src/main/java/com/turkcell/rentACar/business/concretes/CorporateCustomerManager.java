@@ -60,7 +60,12 @@ public class CorporateCustomerManager implements CorporateCustomerService {
 
 	@Override
 	public boolean existsByCorporateCustomerId(int id) {
-		return false;
+		return corporateCustomerDao.existsByCorporateCustomerId(id);
+	}
+
+	@Override
+	public CorporateCustomer getCorporateCustomerById(int id) {
+		return corporateCustomerDao.getById(id);
 	}
 
 }

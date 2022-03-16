@@ -1,11 +1,12 @@
 package com.turkcell.rentACar.business.concretes;
 
-import com.turkcell.rentACar.api.controllers.models.CreateRentalRequest;
+import com.turkcell.rentACar.api.models.CreateRentalRequest;
 import com.turkcell.rentACar.business.abstracts.*;
 import com.turkcell.rentACar.business.dtos.carMaintenanceDtos.CarMaintenanceListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.CarRentListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.GetCarRentDto;
 import com.turkcell.rentACar.business.requests.carRentRequests.CreateCarRentRequest;
+import com.turkcell.rentACar.business.requests.invoiceRequests.CreateInvoiceRequest;
 import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.CreateOrderedAdditionalServiceRequest;
 import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.OrderedAdditionalServiceRequest;
 import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
@@ -36,6 +37,7 @@ public class CarRentManager implements CarRentService {
 	private CityService cityService;
 	private IndividualCustomerService individualCustomerService;
 	private CorporateCustomerService corporateCustomerService;
+	private InvoiceService invoiceService;
 
 	@Autowired
 	public CarRentManager(@Lazy CarMaintenanceService carMaintenanceService,
@@ -44,7 +46,10 @@ public class CarRentManager implements CarRentService {
 						  OrderedAdditionalServiceService orderedAdditionalServiceService,
 						  AdditionalServiceService additionalServiceService,
 						  CarService carService,
-						  CityService cityService) {
+						  CityService cityService,
+						  IndividualCustomerService individualCustomerService,
+						  CorporateCustomerService corporateCustomerService,
+						  InvoiceService invoiceService) {
 		super();
 		this.carMaintenanceService = carMaintenanceService;
 		this.carRentDao = carRentDao;
@@ -53,6 +58,9 @@ public class CarRentManager implements CarRentService {
 		this.additionalServiceService = additionalServiceService;
 		this.carService = carService;
 		this.cityService = cityService;
+		this.individualCustomerService = individualCustomerService;
+		this.corporateCustomerService = corporateCustomerService;
+		this.invoiceService = invoiceService;
 	}
 
 	@Override
@@ -88,9 +96,10 @@ public class CarRentManager implements CarRentService {
 
 		//total payment ayrı methoda
 
-		//createInvoiceRequest
+		CreateInvoiceRequest createInvoiceRequest = new CreateInvoiceRequest(createRentalRequest.getCustomerId(),
+				savedCarRent.getCarRentId(),totalPayment);
 
-		//InvoiceService.add(createInvoiceRequest)
+		invoiceService.add(createInvoiceRequest);
 		
 		return new SuccessResult("Car rent added successfully.");
 	}
@@ -114,6 +123,11 @@ public class CarRentManager implements CarRentService {
 		List<CarRentListDto> response = result.stream()
 				.map(carRent-> this.modelMapperService.forDto().map(carRent, CarRentListDto.class)).collect(Collectors.toList());
 		return new SuccessDataResult<List<CarRentListDto>>(response, "Car rents listed successfully.");
+	}
+
+	@Override
+	public CarRent getByCarRentId(int id) {
+		return this.carRentDao.findById(id);
 	}
 
 	private void checkIfRentalDatesCorrect(CreateCarRentRequest createCarRentRequest) {

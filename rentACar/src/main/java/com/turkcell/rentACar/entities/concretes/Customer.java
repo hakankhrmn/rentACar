@@ -21,7 +21,7 @@ public class Customer extends User{
 	@Column(name="customer_id", insertable = false, updatable = false)
 	private int customerId;
 	
-	@OneToMany(mappedBy = "customer", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Invoice> invoices;
 	
 }

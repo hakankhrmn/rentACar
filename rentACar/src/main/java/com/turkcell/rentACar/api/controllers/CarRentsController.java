@@ -1,6 +1,6 @@
 package com.turkcell.rentACar.api.controllers;
 
-import com.turkcell.rentACar.api.controllers.models.CreateRentalRequest;
+import com.turkcell.rentACar.api.models.CreateRentalRequest;
 import com.turkcell.rentACar.business.abstracts.CarRentService;
 import com.turkcell.rentACar.business.dtos.carRentDtos.CarRentListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.GetCarRentDto;
