@@ -18,6 +18,8 @@ public class InvoiceListDto {
 	private LocalDate invoiceDate;
 
 	private double totalPayment;
+
+	private int totalRentDay;
 	
 	//customer
 	private int customerId;

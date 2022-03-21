@@ -7,5 +7,5 @@ import com.turkcell.rentACar.entities.concretes.Invoice;
 
 @Repository
 public interface InvoiceDao extends JpaRepository<Invoice, Integer>{
-
+    Invoice findByInvoiceNumber(String invoiceNumber);
 }

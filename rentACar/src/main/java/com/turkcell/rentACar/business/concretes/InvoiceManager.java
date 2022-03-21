@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -72,6 +73,9 @@ public class InvoiceManager implements InvoiceService {
         CarRent carRent = carRentService.getByCarRentId(createInvoiceRequest.getCarRentCarRentId());
         Customer customer = customerService.getCustomerById(createInvoiceRequest.getCustomerId());
 
+        invoice.setInvoiceNumber(generateInvoiceNo());
+        invoice.setInvoiceDate(carRent.getReturnDate());
+        invoice.setTotalRentDay((int) DAYS.between(carRent.getRentDate(), carRent.getReturnDate()));
         invoice.setTotalPayment(calculateTotalPayment(createInvoiceRequest.getCustomerId(), carRent));
         invoice.setCarRent(carRent);
         invoice.setCustomer(customer);
@@ -138,5 +142,45 @@ public class InvoiceManager implements InvoiceService {
         }
         return totalPayment;
     }
+
+    private String generateInvoiceNo() {
+        String invoiceNumber;
+        String numbers = "0123456789";
+
+        StringBuilder sb = new StringBuilder();
+
+        Random random = new Random();
+
+        int length = 10;
+
+        while (true) {
+            for(int i = 0; i < length; i++) {
+
+                int index = random.nextInt(numbers.length());
+
+                char randomChar = numbers.charAt(index);
+
+                sb.append(randomChar);
+            }
+
+            invoiceNumber = sb.toString();
+
+            if (checkIfExistsByInvoiceNumber(invoiceNumber)) {
+                break;
+            }
+        }
+
+
+        return invoiceNumber;
+    }
+
+    private boolean checkIfExistsByInvoiceNumber(String invoiceNumber) {
+        Invoice invoice = invoiceDao.findByInvoiceNumber(invoiceNumber);
+        if (invoice == null) {
+            return false;
+        }
+        return true;
+    }
+
 
 }

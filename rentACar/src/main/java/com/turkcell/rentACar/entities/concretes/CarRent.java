@@ -37,6 +37,12 @@ public class CarRent {
 	@Column(name = "return_date")
 	private LocalDate returnDate;
 
+	@Column(name = "rent_start_kilometer")
+	private double rentStartKilometer;
+
+	@Column(name = "return_kilometer")
+	private double returnKilometer;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "car_id")
 	private Car car;

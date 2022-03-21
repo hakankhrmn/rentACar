@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 public class CreateInvoiceRequest {
     private int customerId;
     private int carRentCarRentId;
-    private double totalPayment;
 }

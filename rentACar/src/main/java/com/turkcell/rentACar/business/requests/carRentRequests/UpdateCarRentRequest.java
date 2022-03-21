@@ -29,6 +29,8 @@ public class UpdateCarRentRequest {
 
 	private LocalDate returnDate;
 
+	private double returnKilometer;
+
 	private int carId;
 	
 	private List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests;

@@ -27,7 +27,10 @@ public class Invoice {
 
 	@Column(name="total_payment")
 	private double totalPayment;
-	
+
+	@Column(name="total_rent_day")
+	private int totalRentDay;
+
 	@ManyToOne
 	@JoinColumn(name = "customer_id")
 	private Customer customer;

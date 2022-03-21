@@ -25,6 +25,10 @@ public class CarRentListDto {
 
 	private LocalDate returnDate;
 
+	private double rentStartKilometer;
+
+	private double returnKilometer;
+
 	private int carCarId;
 	
 	private List<AdditionalServiceListDto> additionalServiceListDtos;

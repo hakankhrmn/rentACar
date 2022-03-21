@@ -6,7 +6,7 @@ import com.turkcell.rentACar.business.dtos.carMaintenanceDtos.CarMaintenanceList
 import com.turkcell.rentACar.business.dtos.carRentDtos.CarRentListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.GetCarRentDto;
 import com.turkcell.rentACar.business.requests.carRentRequests.CreateCarRentRequest;
-import com.turkcell.rentACar.business.requests.invoiceRequests.CreateInvoiceRequest;
+import com.turkcell.rentACar.business.requests.carRentRequests.UpdateReturnCarRentRequest;
 import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.CreateOrderedAdditionalServiceRequest;
 import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.OrderedAdditionalServiceRequest;
 import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
@@ -82,6 +82,7 @@ public class CarRentManager implements CarRentService {
 
 		CarRent carRent = this.modelMapperService.forRequest().map(createCarRentRequest, CarRent.class);
 		carRent.setCarRentId(0);
+		carRent.setRentStartKilometer(carService.getById(carRent.getCar().getCarId()).getData().getKilometerInformation());
 
 		CarRent savedCarRent = carRentDao.save(carRent);
 		
@@ -90,13 +91,15 @@ public class CarRentManager implements CarRentService {
 
 		createOrderedAdditionalServiceRequests.forEach(createOrderedAdditionalServiceRequest -> createOrderedAdditionalServiceRequest.setCarRentId(savedCarRent.getCarRentId()));
 		orderedAdditionalServiceService.addAll(createOrderedAdditionalServiceRequests);
-
-		CreateInvoiceRequest createInvoiceRequest = new CreateInvoiceRequest(createRentalRequest.getCustomerId(),
-				savedCarRent.getCarRentId(),0);
-
-		invoiceService.add(createInvoiceRequest);
 		
 		return new SuccessResult("Car rent added successfully.");
+	}
+
+	@Override
+	public Result returnCarRent(UpdateReturnCarRentRequest updateReturnCarRentRequest) {
+		CarRent carRent = this.modelMapperService.forRequest().map(updateReturnCarRentRequest, CarRent.class);
+		carRentDao.save(carRent);
+		return new SuccessResult("Car rent completed successfully.");
 	}
 
 	@Override

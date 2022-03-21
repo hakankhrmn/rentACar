@@ -23,6 +23,10 @@ public class GetCarRentDto {
 
 	private LocalDate returnDate;
 
+	private double rentStartKilometer;
+
+	private double returnKilometer;
+
 	private int carId;
 	
 }
