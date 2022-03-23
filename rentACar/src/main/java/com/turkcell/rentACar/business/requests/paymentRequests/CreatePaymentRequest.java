@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreatePaymentRequest {
 
-    private PosDto postDto;
+    private PosDto posDto;
     private int invoiceId;
 }

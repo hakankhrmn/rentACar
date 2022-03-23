@@ -12,9 +12,9 @@ public class PosDto {
 
     private String cardHolderName;
 
-    private int cardNo;
+    private String cardNo;
 
     private LocalDate expirationDate;
 
-    private int cvv;
+    private String cvv;
 }

@@ -1,12 +1,10 @@
 package com.turkcell.rentACar.business.concretes;
 
 import com.turkcell.rentACar.business.abstracts.InvoiceService;
-import com.turkcell.rentACar.business.abstracts.IsbankPosService;
 import com.turkcell.rentACar.business.abstracts.PaymentService;
-import com.turkcell.rentACar.business.abstracts.ZiraatBankPosService;
+import com.turkcell.rentACar.business.abstracts.PosService;
 import com.turkcell.rentACar.business.dtos.paymentDtos.GetPaymentDto;
 import com.turkcell.rentACar.business.dtos.paymentDtos.PaymentListDto;
-import com.turkcell.rentACar.business.dtos.posDtos.PosDto;
 import com.turkcell.rentACar.business.requests.paymentRequests.CreatePaymentRequest;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
@@ -18,6 +16,7 @@ import com.turkcell.rentACar.entities.concretes.Payment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,16 +28,14 @@ public class PaymentManager implements PaymentService {
 
     private PaymentDao paymentDao;
     private ModelMapperService modelMapperService;
-    private ZiraatBankPosService ziraatBankPosService;
-    private IsbankPosService isbankPosService;
+    private PosService posService;
     private InvoiceService invoiceService;
 
     @Autowired
-    public PaymentManager(PaymentDao paymentDao, ModelMapperService modelMapperService, ZiraatBankPosService ziraatBankPosService, IsbankPosService isbankPosService, InvoiceService invoiceService) {
+    public PaymentManager(PaymentDao paymentDao, ModelMapperService modelMapperService, PosService posService, InvoiceService invoiceService) {
         this.paymentDao = paymentDao;
         this.modelMapperService = modelMapperService;
-        this.ziraatBankPosService = ziraatBankPosService;
-        this.isbankPosService = isbankPosService;
+        this.posService = posService;
         this.invoiceService = invoiceService;
     }
 
@@ -56,11 +53,21 @@ public class PaymentManager implements PaymentService {
         Payment payment = modelMapperService.forRequest().map(createPaymentRequest, Payment.class);
         payment.setPaymentDate(LocalDate.now());
 
-        if (pos(createPaymentRequest.getPostDto())){
-            paymentDao.save(payment);
+        Result result = posService.pos(createPaymentRequest.getPosDto());
+
+        if (result.isSuccess()){
+            runPaymentSuccessor(payment);
         }
 
         return new SuccessResult(SUCCESS_ADD_PAYMENT);
+    }
+
+    @Transactional
+    public void runPaymentSuccessor(Payment payment) {
+        //rental ekle
+        //add additional service
+        //add invoice
+        paymentDao.save(payment);
     }
 
     @Override
@@ -74,9 +81,5 @@ public class PaymentManager implements PaymentService {
         Payment payment = paymentDao.findByInvoice_InvoiceId(id);
         GetPaymentDto getPaymentDto = modelMapperService.forDto().map(payment, GetPaymentDto.class);
         return new SuccessDataResult<>(getPaymentDto, SUCCESS_GET_BY_ID_PAYMENT);
-    }
-
-    private boolean pos(PosDto posDto) {
-        return ziraatBankPosService.pos(posDto).isSuccess();
     }
 }
