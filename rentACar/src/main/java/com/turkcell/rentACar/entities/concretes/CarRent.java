@@ -50,6 +50,6 @@ public class CarRent {
 	@OneToMany(mappedBy = "carRent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<OrderedAdditionalService> orderedAdditionalServices;
 	
-	@OneToOne(mappedBy = "carRent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	private Invoice invoice;
+	@OneToMany(mappedBy = "carRent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Invoice> invoices;
 }

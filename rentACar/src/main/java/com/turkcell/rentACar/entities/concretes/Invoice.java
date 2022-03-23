@@ -31,12 +31,14 @@ public class Invoice {
 	@Column(name="total_rent_day")
 	private int totalRentDay;
 
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "customer_id")
 	private Customer customer;
 	
-	@OneToOne
+	@ManyToOne
 	@JoinColumn(name = "car_rent_id")
 	private CarRent carRent;
-	
+
+	@OneToOne(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private Payment payment;
 }

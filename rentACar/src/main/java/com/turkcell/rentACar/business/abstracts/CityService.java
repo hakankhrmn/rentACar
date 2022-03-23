@@ -5,6 +5,7 @@ import com.turkcell.rentACar.business.dtos.cityDtos.GetCityDto;
 import com.turkcell.rentACar.business.requests.cityRequests.CreateCityRequest;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
+import com.turkcell.rentACar.entities.concretes.City;
 
 import java.util.List;
 
@@ -13,4 +14,6 @@ public interface CityService {
     Result add(CreateCityRequest createCityRequest);
     DataResult<GetCityDto> getById(int id);
     Result delete(int id);
+    City getCityById(int id);
+
 }

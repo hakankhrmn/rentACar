@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.turkcell.rentACar.business.constants.messages.BusinessMessages.*;
+
 @Service
 public class IndividualCustomerManager implements IndividualCustomerService {
 
@@ -36,27 +38,27 @@ public class IndividualCustomerManager implements IndividualCustomerService {
 		List<IndividualCustomer> individualCustomers = individualCustomerDao.findAll();
 		List<IndividualCustomerListDto> individualCustomerListDtos = individualCustomers.stream()
 				.map(individualCustomer -> modelMapperService.forDto().map(individualCustomer, IndividualCustomerListDto.class)).collect(Collectors.toList());
-		return new SuccessDataResult<List<IndividualCustomerListDto>>(individualCustomerListDtos, "Successfully listed individual customers.");
+		return new SuccessDataResult<List<IndividualCustomerListDto>>(individualCustomerListDtos, SUCCESS_GET_ALL_INDIVIDUAL_CUSTOMER);
 	}
 
 	@Override
 	public Result add(CreateIndividualCustomerRequest createIndividualCustomerRequest) {
 		IndividualCustomer individualCustomer = modelMapperService.forRequest().map(createIndividualCustomerRequest, IndividualCustomer.class);
 		individualCustomerDao.save(individualCustomer);
-		return new SuccessResult("Successfully added individual customer.");
+		return new SuccessResult(SUCCESS_ADD_INDIVIDUAL_CUSTOMER);
 	}
 
 	@Override
 	public DataResult<GetIndividualCustomerDto> getById(int id) {
 		IndividualCustomer individualCustomer = individualCustomerDao.getById(id);
 		GetIndividualCustomerDto getIndividualCustomerDto = modelMapperService.forDto().map(individualCustomer, GetIndividualCustomerDto.class);
-		return new SuccessDataResult<GetIndividualCustomerDto>(getIndividualCustomerDto, "Getting individual customer.");
+		return new SuccessDataResult<GetIndividualCustomerDto>(getIndividualCustomerDto, SUCCESS_GET_BY_ID_INDIVIDUAL_CUSTOMER);
 	}
 
 	@Override
 	public Result delete(int id) {
 		individualCustomerDao.deleteById(id);
-		return new SuccessResult("Successfully deleted individual customer with id: " + id);
+		return new SuccessResult(SUCCESS_DELETE_INDIVIDUAL_CUSTOMER);
 	}
 
 	@Override

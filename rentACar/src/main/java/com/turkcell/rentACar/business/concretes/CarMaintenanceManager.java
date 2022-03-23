@@ -23,6 +23,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.turkcell.rentACar.business.constants.messages.BusinessMessages.*;
+
 @Service
 public class CarMaintenanceManager implements CarMaintenanceService {
 
@@ -42,7 +44,7 @@ public class CarMaintenanceManager implements CarMaintenanceService {
 		List<CarMaintenance> result = this.carMaintenanceDao.findAll();
 		List<CarMaintenanceListDto> response = result.stream()
 				.map(carMaintenance -> this.modelMapperService.forDto().map(carMaintenance, CarMaintenanceListDto.class)).collect(Collectors.toList());
-		return new SuccessDataResult<List<CarMaintenanceListDto>>(response, "Car maintenances listed successfully.");
+		return new SuccessDataResult<List<CarMaintenanceListDto>>(response, SUCCESS_GET_ALL_CAR_MAINNTENANCE);
 	}
 
 	@Override
@@ -51,27 +53,27 @@ public class CarMaintenanceManager implements CarMaintenanceService {
 		checkIfManitenanceDatesSuitable(createCarMaintenanceRequest);
 		CarMaintenance carMaintenance = this.modelMapperService.forRequest().map(createCarMaintenanceRequest, CarMaintenance.class);
 		carMaintenanceDao.save(carMaintenance);
-		return new SuccessResult("Car maintenance added successfully.");
+		return new SuccessResult(SUCCESS_ADD_CAR_MAINNTENANCE);
 	}
 
 	@Override
 	public DataResult<GetCarMaintenanceDto> getById(int id) {
 		CarMaintenance carMaintenance = this.carMaintenanceDao.findById(id);
 		GetCarMaintenanceDto response = this.modelMapperService.forDto().map(carMaintenance, GetCarMaintenanceDto.class);
-		return new SuccessDataResult<GetCarMaintenanceDto>(response, "Getting car maintenance by id");
+		return new SuccessDataResult<GetCarMaintenanceDto>(response, SUCCESS_GET_BY_ID_CAR_MAINNTENANCE);
 	}
 
 	@Override
 	public Result delete(int id) {
 		this.carMaintenanceDao.deleteById(id);
-		return new SuccessResult("Car maintenance deleted successfully.");
+		return new SuccessResult(SUCCESS_DELETE_CAR_MAINNTENANCE);
 	}
 
 	@Override
 	public Result update(UpdateCarMaintenanceRequest updateCarMaintenanceRequest) {
 		CarMaintenance carMaintenance = this.modelMapperService.forRequest().map(updateCarMaintenanceRequest, CarMaintenance.class);
 		carMaintenanceDao.save(carMaintenance);
-		return new SuccessResult("Car maintenance updated successfully.");
+		return new SuccessResult(SUCCESS_UPDATE_CAR_MAINNTENANCE);
 	}
 
 	@Override
@@ -79,12 +81,12 @@ public class CarMaintenanceManager implements CarMaintenanceService {
 		List<CarMaintenance> result = this.carMaintenanceDao.findByCar_CarId(carId);
 		List<CarMaintenanceListDto> response = result.stream()
 				.map(carMaintenance -> this.modelMapperService.forDto().map(carMaintenance, CarMaintenanceListDto.class)).collect(Collectors.toList());
-		return new SuccessDataResult<List<CarMaintenanceListDto>>(response, "Car maintenances listed successfully.");
+		return new SuccessDataResult<List<CarMaintenanceListDto>>(response, SUCCESS_GET_BY_CAR_ID_CAR_MAINNTENANCE);
 	}
 	
 	private void checkIfManitenanceDatesCorrect(CreateCarMaintenanceRequest createCarManitenanceRequest) {
 		if (createCarManitenanceRequest.getReturnDate().isBefore(createCarManitenanceRequest.getMaintenanceDate())) {
-			throw new BusinessException("Return date can not be before maintenance date!");
+			throw new BusinessException(ERROR_RETURN_DATE_BEFORE_MAINTENANCE_DATE_CAR_MAINNTENANCE);
 		}
 
 	}
@@ -101,15 +103,15 @@ public class CarMaintenanceManager implements CarMaintenanceService {
 			LocalDate rentReturnDate = carRentListDto.getReturnDate();
 			
 			if(maintenanceDate.isBefore(rentReturnDate) && maintenanceDate.isAfter(rentDate)) {
-				throw new BusinessException("Maintenance date can not be in rent dates!");
+				throw new BusinessException(ERROR_MAINTENANCE_DATE_IN_RENT_DATES_CAR_MAINNTENANCE);
 			}
 			
 			if(returnDate.isBefore(rentReturnDate) && returnDate.isAfter(rentDate)) {
-				throw new BusinessException("Return date of the maintenance can not be in rent dates!");
+				throw new BusinessException(ERROR_RETURN_DATE_IN_RENT_DATE_CAR_MAINNTENANCE);
 			}
 			
 			if(maintenanceDate.isBefore(rentDate) && returnDate.isAfter(rentReturnDate)) {
-				throw new BusinessException("Maintenance dates can not include rent dates!");
+				throw new BusinessException(ERROR_RENT_DATE_IN_MAINTENANCE_DATE_CAR_MAINNTENANCE);
 			}
 		}
 	}

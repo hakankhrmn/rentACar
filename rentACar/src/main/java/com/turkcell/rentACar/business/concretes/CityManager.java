@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.turkcell.rentACar.business.constants.messages.BusinessMessages.*;
+
 @Service
 public class CityManager implements CityService {
 
@@ -34,26 +36,31 @@ public class CityManager implements CityService {
         List<City> cities = cityDao.findAll();
         List<CityListDto> cityListDtos = cities.stream()
                 .map(city -> modelMapperService.forDto().map(city, CityListDto.class)).collect(Collectors.toList());
-        return new SuccessDataResult<List<CityListDto>>(cityListDtos, "Successfully listed cities");
+        return new SuccessDataResult<List<CityListDto>>(cityListDtos, SUCCESS_GET_ALL_CITY);
     }
 
     @Override
     public Result add(CreateCityRequest createCityRequest) {
         City city = modelMapperService.forRequest().map(createCityRequest, City.class);
         cityDao.save(city);
-        return new SuccessResult("Successfully added city");
+        return new SuccessResult(SUCCESS_ADD_CITY);
     }
 
     @Override
     public DataResult<GetCityDto> getById(int id) {
         City city = cityDao.findById(id);
         GetCityDto getCityDto = modelMapperService.forDto().map(city, GetCityDto.class);
-        return new SuccessDataResult<GetCityDto>(getCityDto, "Getting city by id: " + id);
+        return new SuccessDataResult<GetCityDto>(getCityDto, SUCCESS_GET_BY_ID_CITY);
     }
 
     @Override
     public Result delete(int id) {
         cityDao.deleteById(id);
-        return new SuccessResult("Successfully deleted city");
+        return new SuccessResult(SUCCESS_DELETE_CITY);
+    }
+
+    @Override
+    public City getCityById(int id) {
+        return cityDao.findById(id);
     }
 }

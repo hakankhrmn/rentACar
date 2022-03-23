@@ -31,8 +31,8 @@ public class CarRentsController {
 		return carRentService.add(createRentalRequest);
 	}
 
-	@PostMapping("/return-car-rent")
-	public Result returnCarRent(UpdateReturnCarRentRequest updateReturnCarRentRequest) {
+	@PutMapping("/return-car-rent")
+	public Result returnCarRent(@RequestBody UpdateReturnCarRentRequest updateReturnCarRentRequest) {
 		return carRentService.returnCarRent(updateReturnCarRentRequest);
 	}
 	

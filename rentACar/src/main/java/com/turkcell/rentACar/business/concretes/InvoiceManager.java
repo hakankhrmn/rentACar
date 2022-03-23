@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import static com.turkcell.rentACar.business.constants.messages.BusinessMessages.*;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
@@ -64,36 +65,39 @@ public class InvoiceManager implements InvoiceService {
         List<Invoice> invoices = invoiceDao.findAll();
         List<InvoiceListDto> invoiceListDtos = invoices.stream()
                 .map(invoice -> modelMapperService.forDto().map(invoice, InvoiceListDto.class)).collect(Collectors.toList());
-        return new SuccessDataResult<>(invoiceListDtos, "Successfully listed invoices");
+        return new SuccessDataResult<>(invoiceListDtos, SUCCESS_GET_ALL_INVOICE);
     }
 
     @Override
     public Result add(CreateInvoiceRequest createInvoiceRequest) {
-        Invoice invoice = modelMapperService.forRequest().map(createInvoiceRequest, Invoice.class);
+
+        Invoice invoice = new Invoice();
         CarRent carRent = carRentService.getByCarRentId(createInvoiceRequest.getCarRentCarRentId());
         Customer customer = customerService.getCustomerById(createInvoiceRequest.getCustomerId());
 
+        invoice.setInvoiceId(0);
         invoice.setInvoiceNumber(generateInvoiceNo());
         invoice.setInvoiceDate(carRent.getReturnDate());
         invoice.setTotalRentDay((int) DAYS.between(carRent.getRentDate(), carRent.getReturnDate()));
         invoice.setTotalPayment(calculateTotalPayment(createInvoiceRequest.getCustomerId(), carRent));
         invoice.setCarRent(carRent);
         invoice.setCustomer(customer);
+
         invoiceDao.save(invoice);
-        return new SuccessResult("Successfully added invoices");
+        return new SuccessResult(SUCCESS_ADD_INVOICE);
     }
 
     @Override
     public Result delete(int id) {
         invoiceDao.deleteById(id);
-        return new SuccessResult("Successfully deleted invoices");
+        return new SuccessResult(SUCCESS_DELETE_INVOICE);
     }
 
     @Override
     public DataResult<GetInvoiceDto> getById(int id) {
         Invoice invoice = invoiceDao.getById(id);
         GetInvoiceDto getInvoiceDto = modelMapperService.forDto().map(invoice, GetInvoiceDto.class);
-        return new SuccessDataResult<>(getInvoiceDto, "Getting invoice by id: " + id);
+        return new SuccessDataResult<>(getInvoiceDto, SUCCESS_GET_BY_ID_INVOICE);
     }
 
     private double calculateTotalPayment(int customerId, CarRent carRent) {
@@ -165,7 +169,7 @@ public class InvoiceManager implements InvoiceService {
 
             invoiceNumber = sb.toString();
 
-            if (checkIfExistsByInvoiceNumber(invoiceNumber)) {
+            if (!checkIfExistsByInvoiceNumber(invoiceNumber)) {
                 break;
             }
         }
@@ -176,10 +180,10 @@ public class InvoiceManager implements InvoiceService {
 
     private boolean checkIfExistsByInvoiceNumber(String invoiceNumber) {
         Invoice invoice = invoiceDao.findByInvoiceNumber(invoiceNumber);
-        if (invoice == null) {
-            return false;
+        if (invoice != null) {
+            return true;
         }
-        return true;
+        return false;
     }
 
 

@@ -17,6 +17,7 @@ import com.turkcell.rentACar.core.utilities.results.SuccessDataResult;
 import com.turkcell.rentACar.core.utilities.results.SuccessResult;
 import com.turkcell.rentACar.dataAccess.abstracts.CarRentDao;
 import com.turkcell.rentACar.entities.concretes.CarRent;
+import com.turkcell.rentACar.entities.concretes.City;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.turkcell.rentACar.business.constants.messages.BusinessMessages.*;
 
 @Service
 public class CarRentManager implements CarRentService {
@@ -68,7 +71,7 @@ public class CarRentManager implements CarRentService {
 		List<CarRent> result = this.carRentDao.findAll();
 		List<CarRentListDto> response = result.stream()
 				.map(carRent -> this.modelMapperService.forDto().map(carRent, CarRentListDto.class)).collect(Collectors.toList());
-		return new SuccessDataResult<List<CarRentListDto>>(response, "Car rents listed successfully.");
+		return new SuccessDataResult<List<CarRentListDto>>(response, SUCCESS_GET_ALL_CAR_RENT);
 	}
 
 	@Override
@@ -92,27 +95,32 @@ public class CarRentManager implements CarRentService {
 		createOrderedAdditionalServiceRequests.forEach(createOrderedAdditionalServiceRequest -> createOrderedAdditionalServiceRequest.setCarRentId(savedCarRent.getCarRentId()));
 		orderedAdditionalServiceService.addAll(createOrderedAdditionalServiceRequests);
 		
-		return new SuccessResult("Car rent added successfully.");
+		return new SuccessResult(SUCCESS_ADD_CAR_RENT);
 	}
 
 	@Override
 	public Result returnCarRent(UpdateReturnCarRentRequest updateReturnCarRentRequest) {
-		CarRent carRent = this.modelMapperService.forRequest().map(updateReturnCarRentRequest, CarRent.class);
+		CarRent carRent = carRentDao.getById(updateReturnCarRentRequest.getCarRentId());
+		City city = cityService.getCityById(updateReturnCarRentRequest.getReturnCityId());
+
+		carRent.setReturnCity(city);
+		carRent.setReturnKilometer(updateReturnCarRentRequest.getReturnKilometer());
+		//carRent.setReturnDate(updateReturnCarRentRequest.getReturnDate());
 		carRentDao.save(carRent);
-		return new SuccessResult("Car rent completed successfully.");
+		return new SuccessResult(SUCCESS_UPDATE_RETURN_CAR_RENT);
 	}
 
 	@Override
 	public DataResult<GetCarRentDto> getById(int id) {
 		CarRent carRent = this.carRentDao.getById(id);
 		GetCarRentDto getCarRentDto = this.modelMapperService.forDto().map(carRent, GetCarRentDto.class);
-		return new SuccessDataResult<GetCarRentDto>(getCarRentDto, "Getting car rent by car rent id.");
+		return new SuccessDataResult<GetCarRentDto>(getCarRentDto, SUCCESS_GET_BY_ID_CAR_RENT);
 	}
 
 	@Override
 	public Result delete(int id) {
 		this.carRentDao.deleteById(id);
-		return new SuccessResult("Car rent deleted successfully.");
+		return new SuccessResult(SUCCESS_DELETE_CAR_RENT);
 	}
 
 	@Override
@@ -120,7 +128,7 @@ public class CarRentManager implements CarRentService {
 		List<CarRent> result = this.carRentDao.getAllByCar_CarId(carId);
 		List<CarRentListDto> response = result.stream()
 				.map(carRent-> this.modelMapperService.forDto().map(carRent, CarRentListDto.class)).collect(Collectors.toList());
-		return new SuccessDataResult<List<CarRentListDto>>(response, "Car rents listed successfully.");
+		return new SuccessDataResult<List<CarRentListDto>>(response, SUCCESS_GET_BY_CAR_ID_CAR_RENT);
 	}
 
 	@Override
@@ -130,7 +138,7 @@ public class CarRentManager implements CarRentService {
 
 	private void checkIfRentalDatesCorrect(CreateCarRentRequest createCarRentRequest) {
 		if (createCarRentRequest.getReturnDate().isBefore(createCarRentRequest.getRentDate())) {
-			throw new BusinessException("Return date can not be before rent date!");
+			throw new BusinessException(ERROR_RETURN_DATE_BEFORE_RENT_DATE_CAR_RENT);
 		}
 	}
 	
@@ -150,15 +158,15 @@ public class CarRentManager implements CarRentService {
 			LocalDate maintenanceReturnDate = carMaintenanceListDto.getReturnDate();
 			
 			if(rentDate.isBefore(maintenanceReturnDate) && rentDate.isAfter(maintenanceDate)) {
-				throw new BusinessException("Rent date can not be in maintenance dates!");
+				throw new BusinessException(ERROR_RENT_DATE_IN_MAINTENANCE_DATES_CAR_RENT);
 			}
 			
 			if(returnDate.isBefore(maintenanceReturnDate) && returnDate.isAfter(maintenanceDate)) {
-				throw new BusinessException("Return date of the rent can not be in maintenance dates!");
+				throw new BusinessException(ERROR_RETURN_DATE_IN_MAINTENANCE_DATE_CAR_RENT);
 			}
 			
 			if(rentDate.isBefore(maintenanceDate) && returnDate.isAfter(maintenanceReturnDate)) {
-				throw new BusinessException("Rent dates can not include maintenance dates!");
+				throw new BusinessException(ERROR_MAINTENANCE_DATE_IN_RENT_DATE_CAR_RENT);
 			}
 		}
 		

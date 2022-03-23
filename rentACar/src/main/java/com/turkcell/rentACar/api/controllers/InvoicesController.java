@@ -28,17 +28,17 @@ public class InvoicesController {
     }
 
     @PostMapping("/add")
-    public Result add(CreateInvoiceRequest createInvoiceRequest) {
+    public Result add(@RequestBody CreateInvoiceRequest createInvoiceRequest) {
         return invoiceService.add(createInvoiceRequest);
     }
 
     @DeleteMapping("/delete/{id}")
-    public Result delete(int id) {
+    public Result delete(@RequestParam int id) {
         return invoiceService.delete(id);
     }
 
     @GetMapping("/getbyid/{id}")
-    public DataResult<GetInvoiceDto> getById(int id) {
+    public DataResult<GetInvoiceDto> getById(@RequestParam int id) {
         return invoiceService.getById(id);
     }
 }

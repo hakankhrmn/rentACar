@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.turkcell.rentACar.business.constants.messages.BusinessMessages.*;
+
 @Service
 public class CorporateCustomerManager implements CorporateCustomerService {
 
@@ -35,27 +37,27 @@ public class CorporateCustomerManager implements CorporateCustomerService {
 		List<CorporateCustomer> corporateCustomers = corporateCustomerDao.findAll();
 		List<CorporateCustomerListDto> corporateCustomerListDtos = corporateCustomers.stream()
 				.map(corporateCustomer -> modelMapperService.forDto().map(corporateCustomer, CorporateCustomerListDto.class)).collect(Collectors.toList());
-		return new SuccessDataResult<List<CorporateCustomerListDto>>(corporateCustomerListDtos, "Successfully listed corporate customers.");
+		return new SuccessDataResult<List<CorporateCustomerListDto>>(corporateCustomerListDtos, SUCCESS_GET_ALL_CORPORATE_CUSTOMER);
 	}
 
 	@Override
 	public Result add(CreateCorporateCustomerRequest createCorporateCustomerRequest) {
 		CorporateCustomer corporateCustomer = modelMapperService.forRequest().map(createCorporateCustomerRequest, CorporateCustomer.class);
 		corporateCustomerDao.save(corporateCustomer);
-		return new SuccessResult("Successfully added corporate customer.");
+		return new SuccessResult(SUCCESS_ADD_CORPORATE_CUSTOMER);
 	}
 
 	@Override
 	public DataResult<GetCorporateCustomerDto> getById(int id) {
 		CorporateCustomer corporateCustomer = corporateCustomerDao.getById(id);
 		GetCorporateCustomerDto getCorporateCustomerDto = modelMapperService.forDto().map(corporateCustomer, GetCorporateCustomerDto.class);
-		return new SuccessDataResult<GetCorporateCustomerDto>(getCorporateCustomerDto, "Getting corporate customer.");
+		return new SuccessDataResult<GetCorporateCustomerDto>(getCorporateCustomerDto, SUCCESS_GET_BY_ID_CORPORATE_CUSTOMER);
 	}
 
 	@Override
 	public Result delete(int id) {
 		corporateCustomerDao.deleteById(id);
-		return new SuccessResult("Successfully deleted corporate customer with id: " + id);
+		return new SuccessResult(SUCCESS_DELETE_CORPORATE_CUSTOMER);
 	}
 
 	@Override

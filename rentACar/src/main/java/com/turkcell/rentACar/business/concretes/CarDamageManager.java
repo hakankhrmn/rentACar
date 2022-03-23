@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.turkcell.rentACar.business.constants.messages.BusinessMessages.*;
+
 @Service
 public class CarDamageManager implements CarDamageService {
 
@@ -33,14 +35,14 @@ public class CarDamageManager implements CarDamageService {
         List<CarDamage> carDamages = carDamageDao.findAll();
         List<CarDamageListDto> carDamageListDtos = carDamages.stream()
                 .map(carDamage -> modelMapperService.forDto().map(carDamages, CarDamageListDto.class)).collect(Collectors.toList());
-        return new SuccessDataResult<>(carDamageListDtos, "Car damages listed successfully.");
+        return new SuccessDataResult<>(carDamageListDtos, SUCCESS_GET_ALL_CAR_DAMAGE);
     }
 
     @Override
     public Result add(CreateCarDamageRequest createCarDamageRequest) {
         CarDamage carDamage = modelMapperService.forRequest().map(createCarDamageRequest, CarDamage.class);
         carDamageDao.save(carDamage);
-        return new SuccessResult("Car damage added successfully");
+        return new SuccessResult(SUCCESS_ADD_CAR_DAMAGE);
     }
 
     @Override
@@ -48,12 +50,12 @@ public class CarDamageManager implements CarDamageService {
         List<CarDamage> carDamages = carDamageDao.findByCar_CarId(id);
         List<CarDamageListDto> carDamageListDtos = carDamages.stream()
                 .map(carDamage -> modelMapperService.forDto().map(carDamages, CarDamageListDto.class)).collect(Collectors.toList());
-        return new SuccessDataResult<>(carDamageListDtos, "Car damages listed successfully for the car.");
+        return new SuccessDataResult<>(carDamageListDtos, SUCCESS_GET_BY_CAR_ID_CAR_DAMAGE);
     }
 
     @Override
     public Result delete(int id) {
         carDamageDao.deleteById(id);
-        return new SuccessResult("Car damage deleted successfully.");
+        return new SuccessResult(SUCCESS_DELETE_CAR_DAMAGE);
     }
 }
