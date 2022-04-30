@@ -1,20 +1,22 @@
-package com.turkcell.rentACar.business.dtos.posDtos;
+package com.turkcell.rentACar.business.dtos.cardDtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PosDto {
+public class CardDto {
 
     private String cardHolderName;
 
     private String cardNo;
 
-    private LocalDate expirationDate;
+    private int month;
 
-    private String cvv;
+    private int year;
+
+    private int cvv;
+
 }

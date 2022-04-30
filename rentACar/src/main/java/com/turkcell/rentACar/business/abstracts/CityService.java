@@ -15,5 +15,6 @@ public interface CityService {
     DataResult<GetCityDto> getById(int id);
     Result delete(int id);
     City getCityById(int id);
+    void checkIfCityExists(int id);
 
 }

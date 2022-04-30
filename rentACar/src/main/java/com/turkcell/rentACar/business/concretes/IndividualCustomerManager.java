@@ -4,6 +4,7 @@ import com.turkcell.rentACar.business.abstracts.IndividualCustomerService;
 import com.turkcell.rentACar.business.dtos.individualCustomerDtos.GetIndividualCustomerDto;
 import com.turkcell.rentACar.business.dtos.individualCustomerDtos.IndividualCustomerListDto;
 import com.turkcell.rentACar.business.requests.individualCustomerRequests.CreateIndividualCustomerRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -57,6 +58,9 @@ public class IndividualCustomerManager implements IndividualCustomerService {
 
 	@Override
 	public Result delete(int id) {
+
+		checkIfIndividualCustomerExists(id);
+
 		individualCustomerDao.deleteById(id);
 		return new SuccessResult(SUCCESS_DELETE_INDIVIDUAL_CUSTOMER);
 	}
@@ -69,6 +73,13 @@ public class IndividualCustomerManager implements IndividualCustomerService {
 	@Override
 	public IndividualCustomer getIndividualCustomerById(int id) {
 		return individualCustomerDao.getById(id);
+	}
+
+	@Override
+	public void checkIfIndividualCustomerExists(int id) {
+		if (!this.individualCustomerDao.existsById(id)) {
+			throw new BusinessException(ERROR_INDIVIDUAL_CUSTOMER_DOES_NOT_EXISTS);
+		}
 	}
 
 }

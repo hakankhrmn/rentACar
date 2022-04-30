@@ -1,18 +1,5 @@
 package com.turkcell.rentACar.api.controllers;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.turkcell.rentACar.business.abstracts.CarService;
 import com.turkcell.rentACar.business.dtos.carDtos.CarListDto;
 import com.turkcell.rentACar.business.dtos.carDtos.GetCarDto;
@@ -20,6 +7,10 @@ import com.turkcell.rentACar.business.requests.carRequests.CreateCarRequest;
 import com.turkcell.rentACar.business.requests.carRequests.UpdateCarRequest;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/cars")
@@ -47,12 +38,12 @@ public class CarsController {
 	}
 
 	@GetMapping("/get/{id}")
-	public DataResult<GetCarDto> getById(@RequestParam int id) {
+	public DataResult<GetCarDto> getById(@PathVariable int id) {
 		return carService.getById(id);
 	}
 
 	@DeleteMapping("/delete/{id}")
-	public Result delete(@RequestParam int id) {
+	public Result delete(@PathVariable int id) {
 		
 		return carService.delete(id);
 
@@ -65,7 +56,7 @@ public class CarsController {
 	}
 	
 	@GetMapping("/get/{dailyPrice}")
-	public DataResult<List<CarListDto>> getByDailyPrice(double dailyPrice) {
+	public DataResult<List<CarListDto>> getByDailyPrice(@PathVariable double dailyPrice) {
 		return this.carService.getByDailyPrice(dailyPrice);
 	}
 	

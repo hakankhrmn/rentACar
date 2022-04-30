@@ -1,20 +1,15 @@
 package com.turkcell.rentACar.api.controllers;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.turkcell.rentACar.business.abstracts.AdditionalServiceService;
 import com.turkcell.rentACar.business.dtos.additionalServiceDtos.AdditionalServiceListDto;
 import com.turkcell.rentACar.business.dtos.additionalServiceDtos.GetAdditionalServiceDto;
 import com.turkcell.rentACar.business.requests.additionalServiceRequests.CreateAdditionalServiceRequest;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/additional-services")
@@ -39,12 +34,12 @@ public class AdditionalServicesController {
 	}
 
 	@GetMapping("/get/{id}")
-	public DataResult<GetAdditionalServiceDto> getById(int id) {
+	public DataResult<GetAdditionalServiceDto> getById(@PathVariable int id) {
 		return additionalServiceService.getById(id);
 	}
 
 	@DeleteMapping("/delete/{id}")
-	public Result delete(int id) {
+	public Result delete(@PathVariable int id) {
 		return additionalServiceService.delete(id);
 	}
 

@@ -4,6 +4,7 @@ import com.turkcell.rentACar.business.abstracts.CityService;
 import com.turkcell.rentACar.business.dtos.cityDtos.CityListDto;
 import com.turkcell.rentACar.business.dtos.cityDtos.GetCityDto;
 import com.turkcell.rentACar.business.requests.cityRequests.CreateCityRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -55,6 +56,9 @@ public class CityManager implements CityService {
 
     @Override
     public Result delete(int id) {
+
+        checkIfCityExists(id);
+
         cityDao.deleteById(id);
         return new SuccessResult(SUCCESS_DELETE_CITY);
     }
@@ -62,5 +66,12 @@ public class CityManager implements CityService {
     @Override
     public City getCityById(int id) {
         return cityDao.findById(id);
+    }
+
+    @Override
+    public void checkIfCityExists(int id) {
+        if (!this.cityDao.existsById(id)) {
+            throw new BusinessException(ERROR_CITY_DOES_NOT_EXISTS);
+        }
     }
 }

@@ -9,9 +9,10 @@ import java.util.List;
 
 public interface OrderedAdditionalServiceService {
 
-	public void addAll(List<CreateOrderedAdditionalServiceRequest> createOrderedAdditionalServiceRequests);
-	public void updateAll(List<UpdateOrderedAdditionalServiceRequest> updateOrderedAdditionalServiceRequests);
-	public void deleteAllByCarRentId(int carRentId);
+	void addAll(List<CreateOrderedAdditionalServiceRequest> createOrderedAdditionalServiceRequests);
+	void updateAll(List<UpdateOrderedAdditionalServiceRequest> updateOrderedAdditionalServiceRequests);
+	void deleteAllByCarRentId(int carRentId);
 	List<GetOrderedAdditionalServiceDto> getAllByCarRent_CarRentId(int carRentId);
 	List<OrderedAdditionalService> getByCarRent_CarRentId(int carRentId);
+	void checkIfOrderedAdditionalServiceExists(int id);
 }

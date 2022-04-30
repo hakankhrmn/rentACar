@@ -3,6 +3,7 @@ package com.turkcell.rentACar.business.concretes;
 import com.turkcell.rentACar.business.abstracts.CarDamageService;
 import com.turkcell.rentACar.business.dtos.carDamageDtos.CarDamageListDto;
 import com.turkcell.rentACar.business.requests.carDamageRequests.CreateCarDamageRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -47,6 +48,7 @@ public class CarDamageManager implements CarDamageService {
 
     @Override
     public DataResult<List<CarDamageListDto>> getByCarId(int id) {
+
         List<CarDamage> carDamages = carDamageDao.findByCar_CarId(id);
         List<CarDamageListDto> carDamageListDtos = carDamages.stream()
                 .map(carDamage -> modelMapperService.forDto().map(carDamages, CarDamageListDto.class)).collect(Collectors.toList());
@@ -55,7 +57,17 @@ public class CarDamageManager implements CarDamageService {
 
     @Override
     public Result delete(int id) {
+
+        checkIfCarDamageExists(id);
+
         carDamageDao.deleteById(id);
         return new SuccessResult(SUCCESS_DELETE_CAR_DAMAGE);
+    }
+
+    @Override
+    public void checkIfCarDamageExists(int id) {
+        if (!this.carDamageDao.existsById(id)) {
+            throw new BusinessException(ERROR_CAR_DAMAGE_DOES_NOT_EXISTS);
+        }
     }
 }

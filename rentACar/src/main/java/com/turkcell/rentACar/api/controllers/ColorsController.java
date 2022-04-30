@@ -1,18 +1,5 @@
 package com.turkcell.rentACar.api.controllers;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.turkcell.rentACar.business.abstracts.ColorService;
 import com.turkcell.rentACar.business.dtos.colorDtos.ColorListDto;
 import com.turkcell.rentACar.business.dtos.colorDtos.GetColorDto;
@@ -20,6 +7,10 @@ import com.turkcell.rentACar.business.requests.colorRequests.CreateColorRequest;
 import com.turkcell.rentACar.business.requests.colorRequests.UpdateColorRequest;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/colors")
@@ -43,12 +34,12 @@ public class ColorsController {
 	}
 
 	@GetMapping("/getbyid/{id}")
-	public DataResult<GetColorDto> getById(@RequestParam int id) {
+	public DataResult<GetColorDto> getById(@PathVariable int id) {
 		return this.colorService.getById(id);
 	}
 	
 	@DeleteMapping("/delete/{id}")
-	public Result delete(@RequestParam int id) {
+	public Result delete(@PathVariable int id) {
 		return this.colorService.delete(id);
 	}
 	

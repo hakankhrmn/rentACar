@@ -18,4 +18,5 @@ public interface IndividualCustomerService {
 
 	boolean existsByIndividualCustomerId(int id);
 	IndividualCustomer getIndividualCustomerById(int id);
+	void checkIfIndividualCustomerExists(int id);
 }

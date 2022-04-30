@@ -5,6 +5,7 @@ import com.turkcell.rentACar.business.dtos.colorDtos.ColorListDto;
 import com.turkcell.rentACar.business.dtos.colorDtos.GetColorDto;
 import com.turkcell.rentACar.business.requests.colorRequests.CreateColorRequest;
 import com.turkcell.rentACar.business.requests.colorRequests.UpdateColorRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -45,8 +46,11 @@ public class ColorManager implements ColorService {
 
 	@Override
 	public Result add(CreateColorRequest createColorRequest) throws Exception {
+
+		checkIfColorNameExists(createColorRequest.getName());
+
 		Color color = this.modelMapperService.forRequest().map(createColorRequest, Color.class);
-		checkIfColorExists(createColorRequest.getName());
+
 		this.colorDao.save(color);
 		return new SuccessResult(SUCCESS_ADD_COLOR);
 	}
@@ -66,27 +70,27 @@ public class ColorManager implements ColorService {
 
 	@Override
 	public Result update(UpdateColorRequest updateColorRequest) throws Exception {
-		
+
+		checkIfColorExists(updateColorRequest.getColorId());
+		checkIfColorNameExists(updateColorRequest.getColorName());
+
 		Color color = this.modelMapperService.forRequest().map(updateColorRequest, Color.class);
-		
-		checkIfColorNameExists(color);
 		
 		this.colorDao.save(color);
 		
 		return new SuccessResult(SUCCESS_UPDATE_COLOR);
 	}
 
-
-	private void checkIfColorExists(String name) throws Exception {
-		if (this.colorDao.existsByColorName(name)) {
-			throw new Exception(ERROR_ADD_UPDATE_COLOR_SAME_NAME);
+	@Override
+	public void checkIfColorExists(int id) {
+		if (!this.colorDao.existsById(id)) {
+			throw new BusinessException(ERROR_COLOR_DOES_NOT_EXISTS);
 		}
 	}
-	private void checkIfColorNameExists(Color color) throws Exception {
 
-		Color ifExsistsColor= this.colorDao.findByColorName(color.getColorName());
 
-		if (ifExsistsColor != null && ifExsistsColor.getColorId()!=color.getColorId()) {
+	private void checkIfColorNameExists(String name) throws Exception {
+		if (this.colorDao.existsByColorName(name)) {
 			throw new Exception(ERROR_ADD_UPDATE_COLOR_SAME_NAME);
 		}
 	}

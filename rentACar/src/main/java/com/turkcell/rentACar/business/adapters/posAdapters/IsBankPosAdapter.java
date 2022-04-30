@@ -1,7 +1,7 @@
 package com.turkcell.rentACar.business.adapters.posAdapters;
 
 import com.turkcell.rentACar.business.abstracts.PosService;
-import com.turkcell.rentACar.business.dtos.posDtos.PosDto;
+import com.turkcell.rentACar.business.dtos.cardDtos.CardDto;
 import com.turkcell.rentACar.business.outServices.IsBankPosManager;
 import com.turkcell.rentACar.core.utilities.results.ErrorResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -14,9 +14,9 @@ import org.springframework.stereotype.Service;
 public class IsBankPosAdapter implements PosService {
 
     @Override
-    public Result pos(PosDto posDto) {
+    public Result pos(CardDto cardDto) {
         IsBankPosManager isBankPosManager = new IsBankPosManager();
-        boolean posResult = isBankPosManager.makePayment(posDto.getCardNo(), posDto.getCardHolderName(), posDto.getCvv(), posDto.getExpirationDate());
+        boolean posResult = isBankPosManager.makePayment(cardDto.getCardNo(), cardDto.getCardHolderName(), cardDto.getCvv(), cardDto.getMonth(), cardDto.getYear());
         if (posResult) {
             return new SuccessResult();
         }

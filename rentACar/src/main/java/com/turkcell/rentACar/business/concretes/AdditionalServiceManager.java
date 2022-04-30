@@ -4,6 +4,7 @@ import com.turkcell.rentACar.business.abstracts.AdditionalServiceService;
 import com.turkcell.rentACar.business.dtos.additionalServiceDtos.AdditionalServiceListDto;
 import com.turkcell.rentACar.business.dtos.additionalServiceDtos.GetAdditionalServiceDto;
 import com.turkcell.rentACar.business.requests.additionalServiceRequests.CreateAdditionalServiceRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -49,6 +50,7 @@ public class AdditionalServiceManager implements AdditionalServiceService {
 
 	@Override
 	public DataResult<GetAdditionalServiceDto> getById(int id) {
+
 		AdditionalService additionalService = this.additionalServiceDao.findById(id);
 		GetAdditionalServiceDto response = this.modelMapperService.forDto().map(additionalService, GetAdditionalServiceDto.class);
 		return new SuccessDataResult<GetAdditionalServiceDto>(response, SUCCESS_GET_BY_ID_ADDITIONAL_SERVICE);
@@ -56,8 +58,18 @@ public class AdditionalServiceManager implements AdditionalServiceService {
 
 	@Override
 	public Result delete(int id) {
+
+		checkIfAdditionalServiceExists(id);
+
 		this.additionalServiceDao.deleteById(id);
 		return new SuccessResult(SUCCESS_DELETE_ADDITIONAL_SERVICE);
+	}
+
+	@Override
+	public void checkIfAdditionalServiceExists(int id) {
+		if (!this.additionalServiceDao.existsById(id)) {
+			throw new BusinessException(ERROR_ADDITIONAL_SERVICE_DOES_NOT_EXISTS);
+		}
 	}
 
 }

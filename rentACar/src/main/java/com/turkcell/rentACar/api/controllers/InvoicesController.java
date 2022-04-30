@@ -3,7 +3,6 @@ package com.turkcell.rentACar.api.controllers;
 import com.turkcell.rentACar.business.abstracts.InvoiceService;
 import com.turkcell.rentACar.business.dtos.invoiceDtos.GetInvoiceDto;
 import com.turkcell.rentACar.business.dtos.invoiceDtos.InvoiceListDto;
-import com.turkcell.rentACar.business.requests.invoiceRequests.CreateInvoiceRequest;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,19 +25,19 @@ public class InvoicesController {
     public DataResult<List<InvoiceListDto>> getAll() {
         return invoiceService.getAll();
     }
-
+/*
     @PostMapping("/add")
     public Result add(@RequestBody CreateInvoiceRequest createInvoiceRequest) {
         return invoiceService.add(createInvoiceRequest);
     }
-
+*/
     @DeleteMapping("/delete/{id}")
-    public Result delete(@RequestParam int id) {
+    public Result delete(@PathVariable int id) {
         return invoiceService.delete(id);
     }
 
     @GetMapping("/getbyid/{id}")
-    public DataResult<GetInvoiceDto> getById(@RequestParam int id) {
+    public DataResult<GetInvoiceDto> getById(@PathVariable int id) {
         return invoiceService.getById(id);
     }
 }

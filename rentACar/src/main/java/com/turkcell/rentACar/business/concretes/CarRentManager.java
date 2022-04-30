@@ -1,14 +1,11 @@
 package com.turkcell.rentACar.business.concretes;
 
-import com.turkcell.rentACar.api.models.CreateRentalRequest;
 import com.turkcell.rentACar.business.abstracts.*;
 import com.turkcell.rentACar.business.dtos.carMaintenanceDtos.CarMaintenanceListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.CarRentListDto;
 import com.turkcell.rentACar.business.dtos.carRentDtos.GetCarRentDto;
 import com.turkcell.rentACar.business.requests.carRentRequests.CreateCarRentRequest;
 import com.turkcell.rentACar.business.requests.carRentRequests.UpdateReturnCarRentRequest;
-import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.CreateOrderedAdditionalServiceRequest;
-import com.turkcell.rentACar.business.requests.orderedAdditionalServiceRequests.OrderedAdditionalServiceRequest;
 import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
@@ -30,40 +27,26 @@ import static com.turkcell.rentACar.business.constants.messages.BusinessMessages
 
 @Service
 public class CarRentManager implements CarRentService {
-	
-	private OrderedAdditionalServiceService orderedAdditionalServiceService;
+
 	private CarMaintenanceService carMaintenanceService;
 	private CarRentDao carRentDao;
 	private ModelMapperService modelMapperService;
-	private AdditionalServiceService additionalServiceService;
 	private CarService carService;
 	private CityService cityService;
-	private IndividualCustomerService individualCustomerService;
-	private CorporateCustomerService corporateCustomerService;
-	private InvoiceService invoiceService;
 
 	@Autowired
 	public CarRentManager(@Lazy CarMaintenanceService carMaintenanceService,
 						  CarRentDao carRentDao,
 						  ModelMapperService modelMapperService,
-						  OrderedAdditionalServiceService orderedAdditionalServiceService,
-						  AdditionalServiceService additionalServiceService,
 						  CarService carService,
-						  CityService cityService,
-						  IndividualCustomerService individualCustomerService,
-						  CorporateCustomerService corporateCustomerService,
-						  InvoiceService invoiceService) {
+						  CityService cityService) {
 		super();
 		this.carMaintenanceService = carMaintenanceService;
 		this.carRentDao = carRentDao;
 		this.modelMapperService = modelMapperService;
-		this.orderedAdditionalServiceService = orderedAdditionalServiceService;
-		this.additionalServiceService = additionalServiceService;
 		this.carService = carService;
 		this.cityService = cityService;
-		this.individualCustomerService = individualCustomerService;
-		this.corporateCustomerService = corporateCustomerService;
-		this.invoiceService = invoiceService;
+
 	}
 
 	@Override
@@ -75,39 +58,35 @@ public class CarRentManager implements CarRentService {
 	}
 
 	@Override
-	public Result add(CreateRentalRequest createRentalRequest) {
+	public DataResult<GetCarRentDto> add(CreateCarRentRequest createCarRentRequest) {
 
-		CreateCarRentRequest createCarRentRequest = createRentalRequest.getCreateCarRentRequest();
 		checkIfRentalDatesCorrect(createCarRentRequest);
 		checkIfRentalDatesSuitable(createCarRentRequest);
-
-		List<OrderedAdditionalServiceRequest> orderedAdditionalServiceRequests = createCarRentRequest.getOrderedAdditionalServiceRequests();
 
 		CarRent carRent = this.modelMapperService.forRequest().map(createCarRentRequest, CarRent.class);
 		carRent.setCarRentId(0);
 		carRent.setRentStartKilometer(carService.getById(carRent.getCar().getCarId()).getData().getKilometerInformation());
 
 		CarRent savedCarRent = carRentDao.save(carRent);
-		
-		List<CreateOrderedAdditionalServiceRequest> createOrderedAdditionalServiceRequests = orderedAdditionalServiceRequests.stream()
-				.map(orderedAdditionalServiceRequest -> this.modelMapperService.forDto().map(orderedAdditionalServiceRequest, CreateOrderedAdditionalServiceRequest.class)).collect(Collectors.toList());
+		GetCarRentDto carRentDto = modelMapperService.forDto().map(savedCarRent, GetCarRentDto.class);
 
-		createOrderedAdditionalServiceRequests.forEach(createOrderedAdditionalServiceRequest -> createOrderedAdditionalServiceRequest.setCarRentId(savedCarRent.getCarRentId()));
-		orderedAdditionalServiceService.addAll(createOrderedAdditionalServiceRequests);
-		
-		return new SuccessResult(SUCCESS_ADD_CAR_RENT);
+		return new SuccessDataResult<>(carRentDto, SUCCESS_ADD_CAR_RENT);
 	}
 
 	@Override
-	public Result returnCarRent(UpdateReturnCarRentRequest updateReturnCarRentRequest) {
+	public DataResult<GetCarRentDto> returnCarRent(UpdateReturnCarRentRequest updateReturnCarRentRequest) {
+
+		checkIfCarRentExists(updateReturnCarRentRequest.getCarRentId());
+		cityService.checkIfCityExists(updateReturnCarRentRequest.getReturnCityId());
+
 		CarRent carRent = carRentDao.getById(updateReturnCarRentRequest.getCarRentId());
 		City city = cityService.getCityById(updateReturnCarRentRequest.getReturnCityId());
 
 		carRent.setReturnCity(city);
 		carRent.setReturnKilometer(updateReturnCarRentRequest.getReturnKilometer());
-		//carRent.setReturnDate(updateReturnCarRentRequest.getReturnDate());
-		carRentDao.save(carRent);
-		return new SuccessResult(SUCCESS_UPDATE_RETURN_CAR_RENT);
+		carRent.setReturnDate(updateReturnCarRentRequest.getReturnDate());
+		GetCarRentDto getCarRentDto = modelMapperService.forDto().map(carRentDao.save(carRent), GetCarRentDto.class);
+		return new SuccessDataResult<>(getCarRentDto, SUCCESS_UPDATE_RETURN_CAR_RENT);
 	}
 
 	@Override
@@ -119,6 +98,9 @@ public class CarRentManager implements CarRentService {
 
 	@Override
 	public Result delete(int id) {
+
+		checkIfCarRentExists(id);
+
 		this.carRentDao.deleteById(id);
 		return new SuccessResult(SUCCESS_DELETE_CAR_RENT);
 	}
@@ -139,6 +121,13 @@ public class CarRentManager implements CarRentService {
 	private void checkIfRentalDatesCorrect(CreateCarRentRequest createCarRentRequest) {
 		if (createCarRentRequest.getReturnDate().isBefore(createCarRentRequest.getRentDate())) {
 			throw new BusinessException(ERROR_RETURN_DATE_BEFORE_RENT_DATE_CAR_RENT);
+		}
+	}
+
+	@Override
+	public void checkIfCarRentExists(int id) {
+		if (!this.carRentDao.existsById(id)) {
+			throw new BusinessException(ERROR_CAR_RENT_DOES_NOT_EXISTS);
 		}
 	}
 	
@@ -171,6 +160,5 @@ public class CarRentManager implements CarRentService {
 		}
 		
 	}
-
 
 }

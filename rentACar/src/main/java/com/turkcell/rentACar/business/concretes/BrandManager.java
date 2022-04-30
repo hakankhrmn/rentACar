@@ -44,13 +44,12 @@ public class BrandManager implements BrandService{
 		return new SuccessDataResult<List<BrandListDto>>(response, SUCCESS_GET_ALL_BRAND);
 	}
 
-	
-
 	@Override
 	public Result add(CreateBrandRequest createBrandRequest) throws Exception {
 
+		checkIfBrandNameExists(createBrandRequest.getName());
+
 		Brand brand = this.modelMapperService.forRequest().map(createBrandRequest, Brand.class);
-		checkIfBrandExists(createBrandRequest.getName());
 		this.brandDao.save(brand);
 
 		return new SuccessResult(SUCCESS_ADD_BRAND);
@@ -59,6 +58,7 @@ public class BrandManager implements BrandService{
 
 	@Override
 	public DataResult<GetBrandDto> getById(int id) {
+
 		Brand brand = brandDao.findById(id);
 		GetBrandDto response = this.modelMapperService.forDto().map(brand, GetBrandDto.class);
 		return new SuccessDataResult<GetBrandDto>(response,SUCCESS_GET_BY_ID_BRAND);
@@ -66,31 +66,36 @@ public class BrandManager implements BrandService{
 
 	@Override
 	public Result delete(int id) {
+
+		checkIfBrandExists(id);
+
 		this.brandDao.deleteById(id);
 		return new SuccessResult(SUCCESS_DELETE_BRAND);
 	}
 
 	@Override
 	public Result update(UpdateBrandRequest updateBrandRequest) throws Exception {
+
+		checkIfBrandExists(updateBrandRequest.getBrandId());
+		checkIfBrandNameExists(updateBrandRequest.getBrandName());
+
 		Brand brand = this.modelMapperService.forRequest().map(updateBrandRequest, Brand.class);
-		checkIfBrandNameExists(brand);
 		this.brandDao.save(brand);
 		return new SuccessResult(SUCCESS_UPDATE_BRAND);
 		
 	}
 
-	private void checkIfBrandExists(String name) throws Exception {
+	@Override
+	public void checkIfBrandExists(int id) {
+		if (!this.brandDao.existsById(id)) {
+			throw new BusinessException(ERROR_BRAND_DOES_NOT_EXISTS);
+		}
+	}
+
+	private void checkIfBrandNameExists(String name) throws Exception {
 		if (this.brandDao.existsByBrandName(name)) {
 			throw new BusinessException(ERROR_ADD_UPDATE_BRAND_SAME_NAME);
 		}
 	}
 
-	private void checkIfBrandNameExists(Brand brand) throws Exception {
-
-		Brand ifExsistsBrand = this.brandDao.findByBrandName(brand.getBrandName());
-
-		if (ifExsistsBrand != null && ifExsistsBrand.getBrandId()!=brand.getBrandId()) {
-			throw new BusinessException(ERROR_ADD_UPDATE_BRAND_SAME_NAME);
-		}
-	}
 }

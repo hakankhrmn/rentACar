@@ -10,8 +10,9 @@ import java.util.List;
 
 public interface InvoiceService {
     DataResult<List<InvoiceListDto>> getAll();
-    Result add(CreateInvoiceRequest createIndividualCustomerRequest);
+    DataResult<GetInvoiceDto> add(CreateInvoiceRequest createIndividualCustomerRequest);
     Result delete(int id);
 
     DataResult<GetInvoiceDto> getById(int id);
+    void checkIfInvoiceExists(int id);
 }

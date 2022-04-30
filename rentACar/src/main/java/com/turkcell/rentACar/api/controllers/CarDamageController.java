@@ -34,13 +34,13 @@ public class CarDamageController {
     }
 
     @GetMapping("/get/{id}")
-    public DataResult<List<CarDamageListDto>> getByCarId(@RequestParam int id) {
+    public DataResult<List<CarDamageListDto>> getByCarId(@PathVariable int id) {
 
         return carDamageService.getByCarId(id);
     }
 
     @DeleteMapping("/delete/{id}")
-    public Result delete(@RequestParam int id) {
+    public Result delete(@PathVariable int id) {
 
         return carDamageService.delete(id);
     }

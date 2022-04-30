@@ -32,12 +32,12 @@ public class CitiesController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public Result delete(@RequestParam int id) {
+    public Result delete(@PathVariable int id) {
         return cityService.delete(id);
     }
 
     @GetMapping("/getbyid/{id}")
-    public DataResult<GetCityDto> getById(@RequestParam int id) {
+    public DataResult<GetCityDto> getById(@PathVariable int id) {
         return cityService.getById(id);
     }
 }

@@ -35,12 +35,12 @@ public class CorporateCustomersController {
 	}
 
 	@GetMapping("/getbyid/{id}")
-	public DataResult<GetCorporateCustomerDto> getById(@RequestParam int id) {
+	public DataResult<GetCorporateCustomerDto> getById(@PathVariable int id) {
 		return corporateCustomerService.getById(id);
 	}
 
 	@DeleteMapping("/delete/{id}")
-	public Result delete(@RequestParam int id) {
+	public Result delete(@PathVariable int id) {
 		return corporateCustomerService.delete(id);
 	}
 }

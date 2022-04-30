@@ -12,4 +12,5 @@ public interface CarDamageService {
     Result add(CreateCarDamageRequest createCarDamageRequest);
     DataResult<List<CarDamageListDto>> getByCarId(int id);
     Result delete(int id);
+    void checkIfCarDamageExists(int id);
 }

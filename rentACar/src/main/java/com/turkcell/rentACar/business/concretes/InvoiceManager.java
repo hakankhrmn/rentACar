@@ -4,6 +4,7 @@ import com.turkcell.rentACar.business.abstracts.*;
 import com.turkcell.rentACar.business.dtos.invoiceDtos.GetInvoiceDto;
 import com.turkcell.rentACar.business.dtos.invoiceDtos.InvoiceListDto;
 import com.turkcell.rentACar.business.requests.invoiceRequests.CreateInvoiceRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -69,7 +70,10 @@ public class InvoiceManager implements InvoiceService {
     }
 
     @Override
-    public Result add(CreateInvoiceRequest createInvoiceRequest) {
+    public DataResult<GetInvoiceDto> add(CreateInvoiceRequest createInvoiceRequest) {
+
+        carRentService.checkIfCarRentExists(createInvoiceRequest.getCarRentCarRentId());
+        customerService.checkIfCustomerExists(createInvoiceRequest.getCustomerId());
 
         Invoice invoice = new Invoice();
         CarRent carRent = carRentService.getByCarRentId(createInvoiceRequest.getCarRentCarRentId());
@@ -83,12 +87,15 @@ public class InvoiceManager implements InvoiceService {
         invoice.setCarRent(carRent);
         invoice.setCustomer(customer);
 
-        invoiceDao.save(invoice);
-        return new SuccessResult(SUCCESS_ADD_INVOICE);
+        GetInvoiceDto invoiceDto = modelMapperService.forDto().map(invoiceDao.save(invoice), GetInvoiceDto.class);
+        return new SuccessDataResult<>(invoiceDto, SUCCESS_ADD_INVOICE);
     }
 
     @Override
     public Result delete(int id) {
+
+        checkIfInvoiceExists(id);
+
         invoiceDao.deleteById(id);
         return new SuccessResult(SUCCESS_DELETE_INVOICE);
     }
@@ -100,6 +107,13 @@ public class InvoiceManager implements InvoiceService {
         return new SuccessDataResult<>(getInvoiceDto, SUCCESS_GET_BY_ID_INVOICE);
     }
 
+    @Override
+    public void checkIfInvoiceExists(int id) {
+        if (!this.invoiceDao.existsById(id)) {
+            throw new BusinessException(ERROR_INVOICE_DOES_NOT_EXISTS);
+        }
+    }
+
     private double calculateTotalPayment(int customerId, CarRent carRent) {
         double totalPayment = 0;
         long days = DAYS.between(carRent.getRentDate(), carRent.getReturnDate());
@@ -107,6 +121,14 @@ public class InvoiceManager implements InvoiceService {
         totalPayment += calculatePaymentForAdditionalService(carRent.getCarRentId(), days);
         totalPayment += calculatePaymentForCity(carRent);
         totalPayment += calculatePaymentForCustomer(customerId);
+
+        List<Invoice> invoices = carRent.getInvoices();
+        if (invoices != null) {
+            for (Invoice invoice : invoices) {
+                totalPayment -= invoice.getTotalPayment();
+            }
+        }
+
         return totalPayment;
     }
 

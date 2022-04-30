@@ -4,6 +4,7 @@ import com.turkcell.rentACar.business.abstracts.CorporateCustomerService;
 import com.turkcell.rentACar.business.dtos.corporateCustomerDtos.CorporateCustomerListDto;
 import com.turkcell.rentACar.business.dtos.corporateCustomerDtos.GetCorporateCustomerDto;
 import com.turkcell.rentACar.business.requests.corporateCustomerRequests.CreateCorporateCustomerRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -56,6 +57,9 @@ public class CorporateCustomerManager implements CorporateCustomerService {
 
 	@Override
 	public Result delete(int id) {
+
+		checkIfCorporateCustomerExists(id);
+
 		corporateCustomerDao.deleteById(id);
 		return new SuccessResult(SUCCESS_DELETE_CORPORATE_CUSTOMER);
 	}
@@ -68,6 +72,13 @@ public class CorporateCustomerManager implements CorporateCustomerService {
 	@Override
 	public CorporateCustomer getCorporateCustomerById(int id) {
 		return corporateCustomerDao.getById(id);
+	}
+
+	@Override
+	public void checkIfCorporateCustomerExists(int id) {
+		if (!this.corporateCustomerDao.existsById(id)) {
+			throw new BusinessException(ERROR_CORPORATE_CUSTOMER_DOES_NOT_EXISTS);
+		}
 	}
 
 }

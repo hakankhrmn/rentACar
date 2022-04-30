@@ -18,4 +18,5 @@ public interface CorporateCustomerService {
 
 	boolean existsByCorporateCustomerId(int id);
 	CorporateCustomer getCorporateCustomerById(int id);
+	void checkIfCorporateCustomerExists(int id);
 }

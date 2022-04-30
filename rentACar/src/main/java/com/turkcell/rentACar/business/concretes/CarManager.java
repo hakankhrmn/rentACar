@@ -5,6 +5,7 @@ import com.turkcell.rentACar.business.dtos.carDtos.CarListDto;
 import com.turkcell.rentACar.business.dtos.carDtos.GetCarDto;
 import com.turkcell.rentACar.business.requests.carRequests.CreateCarRequest;
 import com.turkcell.rentACar.business.requests.carRequests.UpdateCarRequest;
+import com.turkcell.rentACar.core.utilities.exceptions.BusinessException;
 import com.turkcell.rentACar.core.utilities.mapping.ModelMapperService;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
@@ -61,13 +62,18 @@ public class CarManager implements CarService {
 
 	@Override
 	public Result delete(int id) {
-		
+
+		checkIfCarExists(id);
+
 		this.carDao.deleteById(id);
 		return new SuccessResult(SUCCESS_DELETE_CAR);
 	}
 
 	@Override
 	public Result update(UpdateCarRequest updateCarRequest) {
+
+		checkIfCarExists(updateCarRequest.getCarId());
+
 		Car car = this.modelMapperService.forRequest().map(updateCarRequest, Car.class);
 		carDao.save(car);
 		return new SuccessResult(SUCCESS_UPDATE_CAR);
@@ -96,6 +102,13 @@ public class CarManager implements CarService {
 		List<CarListDto> response = result.stream()
 				.map(car -> this.modelMapperService.forDto().map(car, CarListDto.class)).collect(Collectors.toList());
 		return new SuccessDataResult<List<CarListDto>>(response);
+	}
+
+	@Override
+	public void checkIfCarExists(int id) {
+		if (!this.carDao.existsById(id)) {
+			throw new BusinessException(ERROR_CAR_DOES_NOT_EXISTS);
+		}
 	}
 
 }

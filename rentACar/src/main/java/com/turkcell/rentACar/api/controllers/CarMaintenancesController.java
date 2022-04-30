@@ -1,19 +1,5 @@
 package com.turkcell.rentACar.api.controllers;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.turkcell.rentACar.business.abstracts.CarMaintenanceService;
 import com.turkcell.rentACar.business.dtos.carMaintenanceDtos.CarMaintenanceListDto;
 import com.turkcell.rentACar.business.dtos.carMaintenanceDtos.GetCarMaintenanceDto;
@@ -21,6 +7,11 @@ import com.turkcell.rentACar.business.requests.carMaintenanceRequests.CreateCarM
 import com.turkcell.rentACar.business.requests.carMaintenanceRequests.UpdateCarMaintenanceRequest;
 import com.turkcell.rentACar.core.utilities.results.DataResult;
 import com.turkcell.rentACar.core.utilities.results.Result;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/car-maintenances")
@@ -44,12 +35,12 @@ public class CarMaintenancesController {
 	}
 
 	@GetMapping("/get/{id}")
-	public DataResult<GetCarMaintenanceDto> getById(@RequestParam int id) {
+	public DataResult<GetCarMaintenanceDto> getById(@PathVariable int id) {
 		return carMaintenanceService.getById(id);
 	}
 
 	@DeleteMapping("/delete/{id}")
-	public Result delete(@RequestParam int id) {
+	public Result delete(@PathVariable int id) {
 		return carMaintenanceService.delete(id);
 	}
 
@@ -59,7 +50,7 @@ public class CarMaintenancesController {
 	}
 
 	@GetMapping("/getByCarId/{carId}")
-	public DataResult<List<CarMaintenanceListDto>> getByCarId(@RequestParam int carId) {
+	public DataResult<List<CarMaintenanceListDto>> getByCarId(@PathVariable int carId) {
 		return this.carMaintenanceService.getByCarId(carId);
 	}
 }
